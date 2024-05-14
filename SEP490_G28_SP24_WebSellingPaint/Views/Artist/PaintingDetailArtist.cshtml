@@ -1,0 +1,458 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutArtist";
+}
+<main>
+
+    <div class="page-header add">
+        <h1>Your Painting Detail</h1>
+        <div>
+            <a class="back" href="ManagePainting" style="text-decoration: none">Back</a>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <div class="modal-body">
+            <div class="leaderboard">
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Painting Name</span>
+                        <span class="leaderboard__value">@ViewBag.painting.Name</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Fragile</span>
+                        <span class="leaderboard__value">@(ViewBag.painting.IsFragile == true ? "Yes" : "No")</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Price</span>
+                        <span class="leaderboard__value">@ViewBag.painting.Price</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Height(cm)</span>
+                        <span class="leaderboard__value">@ViewBag.painting.Height</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Width(cm)</span>
+                        <span class="leaderboard__value">@ViewBag.painting.Width</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Status</span>
+                        <span class="leaderboard__value">@ViewBag.painting.StatusName</span>
+                    </div>
+                </div>
+            </div>
+            <div class="leaderboard">
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Painting Categories</span>
+                        <span class="leaderboard__value">@ViewBag.painting.Categories</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Painting Quantity</span>
+                        <span class="leaderboard__value">@ViewBag.painting.Quantity</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Discount</span>
+                        <span class="leaderboard__value">@ViewBag.painting.Discount</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Discount Start</span>
+                        <span class="leaderboard__value">@ViewBag.startDate</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Discount End</span>
+                        <span class="leaderboard__value">@ViewBag.endDate</span>
+                    </div>
+                </div>
+            </div>
+            <div class="leaderboard">
+                <div class="leaderboard__profiles">
+                    <div class="detail-painting-btn" style="justify-content: center;">
+                        <div class="add">
+                            <button id="popup-btn-2">Edit Painting</button>
+                        </div>
+                        @if (ViewBag.painting.StatusName == "Active")
+                        {
+                            <div class="add">
+                                <button onclick="hideshowPainting('hide'); return false;">Hide painting</button>
+                            </div>
+                        }
+                        else if (ViewBag.painting.StatusName == "Hidden")
+                        {
+                            <div class="add">
+                                <button onclick="hideshowPainting('show'); return false;">Active painting</button>
+                            </div>
+                        }
+
+                        <form id="hideshowForm" asp-controller="Artist" asp-action="HideShowPainting" method="post">
+                            <input type="hidden" name="action" id="hideshow" value="" />
+                            <input type="hidden" name="id" value="@ViewBag.painting.ID" />
+                        </form>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles" style="height: 30%;">
+                    <span class="leaderboard__name">Painting Image</span>
+                    <div class="field">
+                        @foreach (var pic in ViewBag.ImageList)
+                        {
+                            <img style="height: 80%; width:auto; margin-top: 1%;" src="@pic.Url" />
+                        }
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <span class="leaderboard__name">Description</span>
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__value" style="text-align: center; width: 500%;">@ViewBag.painting.Description</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</main>
+
+<form id="updateForm" asp-controller="Artist" asp-action="updatepainting" method="post">
+    <div id="myModal" class="modal">
+        <input type="hidden" name="id" value="@ViewBag.painting.ID" />
+        <!-- Modal content -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <div class="" style="text-align: center;">
+                    <h1>Edit Painting</h1>
+                </div>
+            </div>
+            <div class="modal-body-popup">
+                <span>Painting Name</span>
+                <input readonly value="@ViewBag.painting.Name" id="name" type="text" name="name" class="search-popup">
+
+                <div>
+                    <span>Is Fragile</span>&emsp;&emsp;
+                    @if (ViewBag.painting.IsFragile)
+                    {
+                        <input class="category" checked type="checkbox" id="fragile" name="fragile" value="1">
+                    }
+                    else
+                    {
+                        <input class="category" type="checkbox" id="fragile" name="fragile" value="1">
+                    }
+
+                    <label for="fragile">Fragile</label><br>
+                </div>
+
+                <div class="popup-box">
+                    <div>
+                        <span>Price</span>
+                        <input value="@ViewBag.painting.Price" required id="price" name="price" type="number" class="">
+                    </div>
+                    <div style="margin-left: 5%;">
+                        <span>Height(cm)</span>
+                        <input readonly value="@ViewBag.painting.Height" required id="height" name="height" type="number" class="">
+                    </div>
+                    <div style="margin-left: 5%;">
+                        <span>Width(cm)</span>
+                        <input readonly value="@ViewBag.painting.Width" required id="width" name="width" type="number" class="">
+                    </div>
+                </div>
+                <div style="width: 100%;">
+                    <span>Description</span><br>
+                    <textarea name="description" id="description" rows="4" style="width: 100%;"
+                              placeholder="Describe your painting...">@ViewBag.painting.Description</textarea>
+                </div>
+                <div class="pop-discount">
+                    <div>
+                        <span>Quantity</span><br>
+                        <input name="quantity" required id="quantity" type="number"
+                               value="@ViewBag.painting.Quantity" class="" style="height:2rem; width: 50%">
+                    </div>
+                    <div>
+                        <span>Discount</span><br>
+                        <input name="discount" required id="discount" type="number" class=""
+                               value="@ViewBag.painting.Discount" style="width: 80%;" max="99">
+                    </div>
+
+                    <div>
+                        <span>Discount Time</span><br>
+                        <div style="display:flex">
+                            <input value="@ViewBag.startDate" required type="date" id="startDate" name="startDate" style="width: 45%;">
+                            <span style="padding: 2%">To</span>
+                            <input value="@ViewBag.endDate" required type="date" id="endDate" name="endDate" style="width: 45%;">
+                        </div>
+                    </div>
+                </div>
+                <div class="detail-painting-image">
+
+                    <div class="field">
+                        <input required type="file" id="files" name="files" multiple style="display: none;" />
+                        <output id='result' name="image">
+                            @foreach (var item in ViewBag.ImageList)
+                            {
+                                <div class="image-container" id="@item.ID">
+                                    <img class="thumbnail" src="@item.Url" title="" />
+                                </div>
+                            }
+                        </output>
+                    </div>
+
+                </div>
+                <div>
+                    <span>Category</span>
+                </div>
+                <div class="pop-cate">
+                    @foreach (var item in ViewBag.cate)
+                    {
+                        <div id="cbgrid" class="pop-cate-element">
+                            @if (ViewBag.painting.Category.Contains(item.ID))
+                            {
+                                <input checked id="@item.ID" class="category" name="category" value="@item.ID" type="checkbox">
+                            }
+                            else
+                            {
+                                <input id="@item.ID" class="category" name="category" value="@item.ID" type="checkbox">
+                            }
+                            <label for="@item.ID">@item.Name</label>
+                        </div>
+                    }
+
+                </div>
+
+                <div class="pop-btn">
+                    <div class="add">
+                        <button onclick="checkValidUpdateData();return false;">Update</button>
+                    </div>
+                    <div class="add">
+                        <button class="cancel">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    // Get the modal
+    var modal = document.getElementById("myModal");
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("popup-btn-2");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+    var btnCancel = document.getElementsByClassName("cancel")[0];
+
+    // When the user clicks the button, open the modal
+    btn.onclick = function () {
+        modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    btnCancel.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
+<script>
+    var id = 0;
+    function openFileDialog() {
+        id++;
+        document.getElementById("files").click();
+    }
+
+    window.onload = function () {
+        // Check File API support
+        var filesInput = document.getElementById("files");
+        filesInput.addEventListener("change", function (event) {
+            var files = event.target.files; // FileList object
+            var output = document.getElementById("result");
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                // Only process image files
+                if (!file.type.match('image')) {
+                    continue;
+                }
+
+                var picReader = new FileReader();
+                picReader.addEventListener("load", function (event) {
+                    var picFile = event.target;
+                    var div = document.createElement("div");
+                    div.classList.add('image-container');
+                    var currentId = id++; // Generate unique ID
+                    div.id = "image-container-" + currentId; // Set unique ID
+                    div.innerHTML =
+                        "<img class='thumbnail' src='" + picFile.result + "' title='" + picFile.name + "'/>";
+                    output.insertBefore(div, null);
+                });
+
+                // Read the image
+                picReader.readAsDataURL(file);
+            }
+        });
+
+        // Add an event listener to the file input for clearing
+        filesInput.addEventListener("click", function () {
+            this.value = null; // Clear the selected file
+        });
+    }
+
+
+    function removeFunction(idRemove) {
+        var container = document.getElementById('result');
+        var element = document.getElementById(idRemove);
+        if (element && container) {
+            // Remove the element from its parent container
+            container.removeChild(element);
+        }
+    }
+
+    //method to check valid update data
+    function checkValidUpdateData() {
+        var name = document.getElementById('name');
+        var price = document.getElementById('price');
+        var height = document.getElementById('height');
+        var width = document.getElementById('width');
+        var description = document.getElementById('description');
+        var discount = document.getElementById('discount');
+        var quantity = document.getElementById('quantity');
+        var imageContainers = document.querySelectorAll('.image-container');
+        var categoryCheckboxes = document.querySelectorAll('.category');
+        var startDate = document.getElementById('startDate');
+        var endDate = document.getElementById('endDate');
+        var anyChecked = false;
+        categoryCheckboxes.forEach(function (checkbox) {
+            // Check if the checkbox is checked
+            if (checkbox.checked) {
+                // Set the flag to true if at least one checkbox is checked
+                anyChecked = true;
+                // Exit the loop early if a checked checkbox is found
+                return;
+            }
+        });
+
+        if (name.value.trim() == '') {
+            alert("Please give your painting a name");
+            return false;
+        }
+        else if (price.value <= 0) {
+            alert("Price must greater than 0");
+            return false;
+        }
+        else if (height.value <= 0 | width.value <= 0) {
+            alert("Height and width must greater than 0");
+            return false;
+        }
+        else if (description.value == '') {
+            alert("Please give your painting a description");
+            return false;
+        }
+        else if (quantity.value <= 0) {
+            alert("Please give it a quantity and quantity must greater than 0 yeah?");
+            return false;
+        }
+        else if (discount.value == '') {
+            alert("Please give a discount number. If not then 0 would be fine");
+            return false;
+        }
+        else if (discount.value < 0 | discount.value > 99) {
+            alert("Discount only from 0-99. What are you trying to do? (-.-)");
+            return false;
+        }
+        else if (discount.value > 0 && (endDate.value <= startDate.value)) {
+            alert("Please set a proper date time for your discount");
+            return false;
+        }
+        else if (imageContainers.length == 0) {
+            alert("You need to choose pictures of your painting -.-");
+            return false;
+        }
+        else if (anyChecked == false) {
+            alert("You need to choose at least one category for your painting");
+            return false;
+        }
+        else {
+            var result = confirm("You sure you wanna update this painting?");
+            if (result) {
+                var form = document.getElementById('updateForm');
+                getImageData();
+                form.submit();
+                alert("Update painting successfully");
+            }
+            else {
+                return false;
+            }
+        }
+
+    }
+
+    function getImageData() {
+        var output = document.getElementById("result");
+        var form = document.getElementById('updateForm');
+
+        // Select all the image tags inside the output tag
+        var images = output.querySelectorAll("img");
+
+        // Create an array to store src values
+        var srcArray = [];
+
+        // Loop through each image tag to extract src attribute
+        images.forEach(function (image) {
+            var src = image.getAttribute("src");
+            srcArray.push(src);
+        });
+        srcArray.forEach(function (src) {
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "imageData";
+            input.value = src;
+            form.appendChild(input);
+        });
+    }
+
+    //method to submit hide/show painting
+    function hideshowPainting(action) {
+        var hideshow = document.getElementById('hideshow');
+        hideshow.value = action;
+        var noti = "";
+        if (action == "hide") {
+            noti = "You sure you wanna hide the painting? This will make you painting not showing on the shop.";
+        }
+        else {
+            noti = "You wanna show the painting? Customer can see and buy this painting.";
+        }
+        if (confirm(noti)) {
+            var form = document.getElementById('hideshowForm');
+            form.submit();
+        }
+        else {
+            return false;
+        }
+    }
+</script>

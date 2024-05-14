@@ -1,0 +1,568 @@
+﻿@{
+    Layout = "_LayoutCustomer";
+}
+<script>
+    function submitForm() {
+        var form = document.getElementById('filterform');
+        var action = document.getElementById('action');
+        var searchbox = document.getElementById('searchbox');
+        var minPrice = document.getElementById('minPrice');
+        var maxPrice = document.getElementById('maxPrice');
+        var minWidth = document.getElementById('minWidth');
+        var maxWidth = document.getElementById('maxWidth');
+        var minHeight = document.getElementById('minHeight');
+        var maxHeight = document.getElementById('maxHeight');
+        var minDis = document.getElementById('minDis');
+        var maxDis = document.getElementById('maxDis');
+        action.value = 'filter';
+        if (searchbox.value === '') {
+            searchbox.value = '';
+        }
+        if (minPrice.value === '') {
+            minPrice.value = 0;
+        }
+        if (maxPrice.value === '') {
+            maxPrice.value = 99999999;
+        }
+        if (minWidth.value === '') {
+            minWidth.value = 0;
+        }
+        if (maxWidth.value === '') {
+            maxWidth.value = 9999;
+        }
+        if (minHeight.value === '') {
+            minHeight.value = 0;
+        }
+        if (maxHeight.value === '') {
+            maxHeight.value = 9999;
+        }
+        if (minDis.value === '') {
+            minDis.value = 0;
+        }
+        if (maxDis.value === '') {
+            maxDis.value = 99;
+        }
+        if (maxPrice.value <= minPrice.value) {
+            Swal.fire({
+                icon: "error",
+                text: "Min price must smaller than max price"
+            });
+            return false;
+        }
+        else if (maxWidth.value <= minWidth.value) {
+            Swal.fire({
+                icon: "error",
+                text: "Min width must smaller than max width"
+            });
+            return false;
+        }
+        else if (maxHeight.value <= minHeight.value) {
+            Swal.fire({
+                icon: "error",
+                text: "Min height must smaller than max height"
+            });
+            return false;
+        }
+        else if (maxDis.value <= minDis.value) {
+            Swal.fire({
+                icon: "error",
+                text: "Min discount must smaller than max discount"
+            });
+            return false;
+        }
+        else if (maxDis.value < 0 || maxDis.value > 99) {
+            Swal.fire({
+                icon: "error",
+                text: "Max Discount must be between 0-99"
+            });
+            return false;
+        }
+        else if (minDis.value < 0 || minDis.value > 98) {
+            Swal.fire({
+                icon: "error",
+                text: "Min Discount must be between 0-98"
+            });
+            return false;
+        }
+        else if (minPrice.value < 0 || minPrice.value > 99999998) {
+            Swal.fire({
+                icon: "error",
+                text: "Min Price must be between 0-99999998"
+            });
+            return false;
+        }
+        else if (maxPrice.value < 0 || maxPrice.value > 99999999) {
+            Swal.fire({
+                icon: "error",
+                text: "Max Price must be between 0-99999999"
+            });
+            return false;
+        }
+        else if (maxWidth.value < 0 || maxWidth.value > 9999) {
+            Swal.fire({
+                icon: "error",
+                text: "Max Width must be between 0-9999"
+            });
+            return false;
+        }
+        else if (minWidth.value < 0 || minWidth.value > 9998) {
+            Swal.fire({
+                icon: "error",
+                text: "Min Width must be between 0-9998"
+            });
+            return false;
+        }
+        else if (minHeight.value < 0 || minHeight.value > 9998) {
+            Swal.fire({
+                icon: "error",
+                text: "Min Height must be between 0-9998"
+            });
+            return false;
+        }
+        else if (maxHeight.value < 0 || maxHeight.value > 9999) {
+            Swal.fire({
+                icon: "error",
+                text: "Max Height must be between 0-9999"
+            });
+            return false;
+        }
+        form.submit();
+    }
+</script>
+<section class="" style="background-color: white;">
+    <div class="row">
+        <div class="col-lg-3 col-xl-3 ">
+            <div class="col-sm-12">
+                <div class="side border mb-1">
+                    <form id="filterform" asp-controller="Shop" asp-action="Shop" method="post">
+                        <input type="hidden" name="action" id="action" />
+                    <div>
+                        <input value="@(ViewBag.searchbox)" name="searchbox" 
+                        id="searchbox" type="text" class="search-box" placeholder="Search...">
+                    </div>
+                    <div class="d-flex shop-filter" style="align-items: baseline">
+                        <a style="text-decoration: none; padding: 3%;" onclick="submitForm();" class="btn fs-6 text-white">
+                            Filter
+                        </a>
+                            <a href="../Shop" style="text-decoration: none; padding: 3%;" class="btn fs-6 text-white">
+                            Clear
+                        </a>
+                        <div class="shop-cate-filter">
+                            <label for="">Category:</label>
+                            <select name="category" id="category">
+                                <option value="0">All</option>
+                                @foreach(var category in ViewBag.CategoryList){
+                                        @if (category.CategoryId == ViewBag.category)
+                                        {
+                                            <option selected value="@category.CategoryId">@category.CategoryName</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@category.CategoryId">@category.CategoryName</option>
+                                        }
+                                    }
+                            </select>
+                        </div>
+                    </div>
+                        <h3 style="text-shadow: 0 0 3px #FF0000;font-size: 30px;">Price</h3>
+                        <div class="wrapper">
+                            <fieldset class="filter-price">
+
+                                <div class="price-field">
+                                    <div class="d-flex">
+                                        <input class="range" type="range" min="0" max="99999998" value="@ViewBag.minPrice" id="priceLower">
+                                        <div class="price-wrap">
+
+                                            <div class="price-container">
+                                                <div class="price-wrap-1">
+                                                    <input class="text-shop" type="number" value="@ViewBag.minPrice" name="minPrice" id="minPrice">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="price-wrap_line">To</div>
+                                    <div class="d-flex">
+                                        <input class="range" type="range" min="1" max="99999999" value="@ViewBag.maxPrice" id="priceUpper">
+                                        <div class="price-wrap">
+                                            <div class="price-container">
+                                                <div class="price-wrap-2">
+                                                    <input class="text-shop" type="number" value="@ViewBag.maxPrice" name="maxPrice" id="maxPrice">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </fieldset>
+                        </div>
+                        <h3 style="text-shadow: 0 0 3px #FF0000;font-size: 30px;">Size</h3>
+                        <div class="wrapper">
+                            <fieldset class="filter-price">
+                                <h5>Width(cm)</h5>
+                                <div class="price-field">
+                                    <div class="d-flex">
+                                        <input class="range" type="range" min="0" max="9998" value="@ViewBag.minWidth" id="widthLower">
+                                        <div class="price-wrap">
+
+                                            <div class="price-container">
+                                                <div class="price-wrap-1">
+                                                    <input class="text-shop" type="number" value="@ViewBag.minWidth" name="minwidth" id="minWidth">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="price-wrap_line">To</div>
+                                    <div class="d-flex">
+                                        <input class="range" type="range" min="1" max="9999" value="@ViewBag.maxWidth" id="widthUpper">
+                                        <div class="price-wrap">
+                                            <div class="price-container">
+                                                <div class="price-wrap-2 d-flex">
+                                                    <input class="text-shop" type="number" value="@ViewBag.maxWidth" name="maxwidth" id="maxWidth">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <h5>Height(cm)</h5>
+                        <fieldset class="filter-price">
+                            <div class="price-field">
+                                <div class="d-flex">
+                                    <input class="range" type="range" min="0" max="9998" value="@ViewBag.minHeight" id="heightLower">
+                                    <div class="price-wrap">
+                                        <div class="price-container">
+                                            <div class="price-wrap-1">
+                                                <input class="text-shop" type="number" value="@ViewBag.minHeight" name="minheight" id="minHeight">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="price-wrap_line">To</div>
+                                <div class="d-flex">
+                                    <input class="range" type="range" min="1" max="9999" value="@ViewBag.maxHeight" id="heightUpper">
+                                    <div class="price-wrap">
+                                        <div class="price-container">
+                                            <div class="price-wrap-2 d-flex">
+                                                <input class="text-shop" type="number" value="@ViewBag.maxHeight" name="maxheight" id="maxHeight">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <h3 style="text-shadow: 0 0 3px #FF0000;font-size: 30px;">Discount(%)</h3>
+                        <div class="wrapper">
+                            <fieldset class="filter-price">
+
+                                <div class="price-field">
+                                    <div class="d-flex">
+                                        <input class="range" type="range" min="0" max="98" value="@ViewBag.minDis" id="disLower">
+                                        <div class="price-wrap">
+                                            <div class="price-container">
+                                                <div class="price-wrap-1">
+                                                    <input class="text-shop" type="number" value="@ViewBag.minDis" name="minDis" id="minDis">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="price-wrap_line">To</div>
+                                    <div class="d-flex">
+                                        <input class="range" type="range" min="1" max="99" value="@ViewBag.maxDis" id="disUpper">
+                                        <div class="price-wrap">
+                                            <div class="price-container">
+                                                <div class="price-wrap-2 d-flex">
+                                                    <input class="text-shop" type="number" value="@ViewBag.maxDis" name="maxDis" id="maxDis">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    
+                    <div>
+                        <div>
+                                <label for="">Sort By:</label>
+                                <select name="orderby" id="">
+                                    @foreach (var item in ViewBag.orderbyList)
+                                    {
+                                        @if (ViewBag.orderby == item.Item1)
+                                        {
+                                            <option selected value="@item.Item1">@item.Item2</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.Item1">@item.Item2</option>
+                                        }
+                                    }
+                                </select>
+                        </div>
+                        <div>
+                                <label for="">Order By:</label>
+                                <select name="order" id="">
+                                    <option value="ASC">ASC</option>
+                                    @if (ViewBag.order == "DESC")
+                                    {
+                                        <option selected value="DESC">DESC</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="DESC">DESC</option>
+                                    }
+                                </select>
+                        </div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-lg-9 col-xl-9 content">
+            <div class="row row-pb-md" style="justify-content: flex-start">
+
+                <!-- Painting List-->
+                <p style="font-size: 20px">@ViewBag.alert</p>
+                @if (ViewBag.PaintingList != null) {
+                    @foreach (var painting in ViewBag.PaintingList)
+                    {
+                        <section class="bg-image shadow-1-strong rounded col-lg-4 col-md-12 mb-4">
+                            <div class="product">
+                                <a href="../PaintingDetail?id=@painting.Painting.PaintingId" class="image-main">
+                                    <div>
+                                        <img src="@painting.ImageUrl" alt="" class="img-fluid"
+                                             style="width: 100%; height: 350px; object-fit: cover; margin-top: 3%;">
+                                        @if (painting.Discount > 0)
+                                        {
+                                        <div class="badge-overlay">
+                                            <!-- Change Badge Position, Color, Text here-->
+                                            <span class="top-left badge orange">
+                                                Sale 
+                                                
+                                                    <span>&ensp; @(painting.Discount + "%")</span>
+                                                 
+                                                Off
+                                            </span>
+                                        </div>
+                                        }
+                                    </div>
+                                </a>
+                                <div class="text py-3 pb-4 px-3 text-center">
+                                    <h3><a href="../PaintingDetail?id=@painting.Painting.PaintingId" class="text-hover">@painting.Painting.Name</a></h3>
+
+                                    @if (painting.Discount > 0)
+                                    {
+                                        <span style="text-decoration: line-through; text-decoration-color: gray; color: gray" class="">@painting.Price</span>
+                                        <span class="">@(painting.DiscountPrice)VND</span>
+                                    }
+                                    else {
+                                        <span class="">@(painting.Price)VND</span>
+                                    }
+                                </div>
+                            </div>
+                        </section>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    var priceLowerSlider = document.querySelector('#priceLower');
+    var priceUpperSlider = document.querySelector('#priceUpper');
+    var minPriceInput = document.querySelector('#minPrice');
+    var maxPriceInput = document.querySelector('#maxPrice');
+
+    minPriceInput.value = priceLowerSlider.value;
+    maxPriceInput.value = priceUpperSlider.value;
+
+    priceLowerSlider.oninput = function () {
+        if (parseInt(this.value) > parseInt(priceUpperSlider.value)) {
+            priceUpperSlider.value = this.value;
+            maxPriceInput.value = this.value;
+        }
+        minPriceInput.value = this.value;
+    };
+
+    priceUpperSlider.oninput = function () {
+        if (parseInt(this.value) < parseInt(priceLowerSlider.value)) {
+            priceLowerSlider.value = this.value;
+            minPriceInput.value = this.value;
+        }
+        maxPriceInput.value = this.value;
+    };
+    // Width sliders
+    var widthLowerSlider = document.querySelector('#widthLower');
+    var widthUpperSlider = document.querySelector('#widthUpper');
+    var minWidthInput = document.querySelector('#minWidth');
+    var maxWidthInput = document.querySelector('#maxWidth');
+
+    minWidthInput.value = widthLowerSlider.value;
+    maxWidthInput.value = widthUpperSlider.value;
+
+    widthLowerSlider.oninput = function () {
+        if (parseInt(this.value) > parseInt(widthUpperSlider.value)) {
+            widthUpperSlider.value = this.value;
+            maxWidthInput.value = this.value;
+        }
+        minWidthInput.value = this.value;
+    };
+
+    widthUpperSlider.oninput = function () {
+        if (parseInt(this.value) < parseInt(widthLowerSlider.value)) {
+            widthLowerSlider.value = this.value;
+            minWidthInput.value = this.value;
+        }
+        maxWidthInput.value = this.value;
+    };
+
+    // Height sliders
+    var heightLowerSlider = document.querySelector('#heightLower');
+    var heightUpperSlider = document.querySelector('#heightUpper');
+    var minHeightInput = document.querySelector('#minHeight');
+    var maxHeightInput = document.querySelector('#maxHeight');
+
+    minHeightInput.value = heightLowerSlider.value;
+    maxHeightInput.value = heightUpperSlider.value;
+
+    heightLowerSlider.oninput = function () {
+        if (parseInt(this.value) > parseInt(heightUpperSlider.value)) {
+            heightUpperSlider.value = this.value;
+            maxHeightInput.value = this.value;
+        }
+        minHeightInput.value = this.value;
+    };
+
+    heightUpperSlider.oninput = function () {
+        if (parseInt(this.value) < parseInt(heightLowerSlider.value)) {
+            heightLowerSlider.value = this.value;
+            minHeightInput.value = this.value;
+        }
+        maxHeightInput.value = this.value;
+    };
+
+    var disLowerSlider = document.querySelector('#disLower');
+    var disUpperSlider = document.querySelector('#disUpper');
+    var minDisInput = document.querySelector('#minDis');
+    var maxDisInput = document.querySelector('#maxDis');
+
+    minDisInput.value = disLowerSlider.value;
+    maxDisInput.value = disUpperSlider.value;
+
+    disLowerSlider.oninput = function () {
+        if (parseInt(this.value) > parseInt(disUpperSlider.value)) {
+            disUpperSlider.value = this.value;
+            maxDisInput.value = this.value;
+        }
+        minDisInput.value = this.value;
+    };
+
+    disUpperSlider.oninput = function () {
+        if (parseInt(this.value) < parseInt(disLowerSlider.value)) {
+            disLowerSlider.value = this.value;
+            minDisInput.value = this.value;
+        }
+        maxDisInput.value = this.value;
+    };
+
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const content = document.querySelector('.content');
+        const itemsPerPage = 9; // set number of items per page
+        let currentPage = 0;
+        const items = Array.from(content.getElementsByTagName('section')).slice(0); // tag name set to section and slice set to 0
+
+        function showPage(page) {
+            const startIndex = page * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            items.forEach((item, index) => {
+                item.classList.toggle('hidden', index < startIndex || index >= endIndex);
+            });
+            updateActiveButtonStates();
+        }
+
+        function createPageButtons() {
+            const totalPages = Math.ceil(items.length / itemsPerPage);
+            const paginationContainer = document.createElement('div');
+            const paginationDiv = document.body.appendChild(paginationContainer);
+            paginationContainer.classList.add('pagination');
+
+            // Add page buttons
+            // Thêm nút "First"
+            const firstButton = document.createElement('button');
+            firstButton.textContent = 'First';
+            firstButton.addEventListener('click', () => {
+                currentPage = 0;
+                showPage(currentPage);
+                updateActiveButtonStates();
+            });
+            content.appendChild(paginationContainer);
+            paginationDiv.appendChild(firstButton);
+
+            // Thêm nút "Previous"
+            const previousButton = document.createElement('button');
+            previousButton.textContent = 'Previous';
+            previousButton.addEventListener('click', () => {
+                if (currentPage > 0) {
+                    currentPage--;
+                    showPage(currentPage);
+                    updateActiveButtonStates();
+                }
+            });
+            content.appendChild(paginationContainer);
+            paginationDiv.appendChild(previousButton);
+
+            for (let i = 0; i < totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i + 1;
+                pageButton.addEventListener('click', () => {
+                    currentPage = i;
+                    showPage(currentPage);
+                    updateActiveButtonStates();
+                });
+                content.appendChild(paginationContainer);
+                paginationDiv.appendChild(pageButton);
+            }
+
+            const nextButton = document.createElement('button');
+            nextButton.textContent = 'Next';
+            nextButton.addEventListener('click', () => {
+                if (currentPage < totalPages - 1) {
+                    currentPage++;
+                    showPage(currentPage);
+                    updateActiveButtonStates();
+                }
+            });
+            content.appendChild(paginationContainer);
+            paginationDiv.appendChild(nextButton);
+
+            // Thêm nút "Last"
+            const lastButton = document.createElement('button');
+            lastButton.textContent = 'Last';
+            lastButton.addEventListener('click', () => {
+                currentPage = totalPages - 1;
+                showPage(currentPage);
+                updateActiveButtonStates();
+            });
+            content.appendChild(paginationContainer);
+            paginationDiv.appendChild(lastButton);
+
+
+        }
+
+        function updateActiveButtonStates() {
+            const pageButtons = document.querySelectorAll('.pagination button');
+            pageButtons.forEach((button, index) => {
+                if (index === currentPage + 2) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+        }
+
+        createPageButtons(); // Call this function to create the page buttons initially
+        showPage(currentPage);
+    });
+</script>

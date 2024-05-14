@@ -1,0 +1,263 @@
+﻿@{
+    Layout = "_LayoutCustomer";
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+    .column-team {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-team {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        position: relative; /* Add this line */
+    }
+
+    .container-team {
+        flex-grow: 1;
+    }
+
+    .button-team {
+        position: absolute;
+        bottom: 10px; /* Adjust as needed */
+        left: 50%; /* Adjust as needed */
+        transform: translateX(-50%);
+    }
+</style>
+<body>
+    <div class="row">
+        <div class="achievements">
+            <div class="work">
+                <i class="fa-solid fa-truck fa-beat-fade" style="--fa-beat-fade-opacity: 0.67; --fa-beat-fade-scale: 1.075;"></i>
+                <p class="work-heading">Free Ship</p>
+                <p class="work-text">On order over 1.000.000 VND</p>
+            </div>
+            <div class="work">
+                <i class="fa-solid fa-award fa-beat-fade" style="--fa-beat-fade-opacity: 0.67; --fa-beat-fade-scale: 1.075;"></i>
+                <p class="work-heading">Superior Quality</p>
+                <p class="work-text">Quality product</p>
+            </div>
+            <div class="work">
+                <i class="fa-solid fa-headset fa-beat-fade" style="--fa-beat-fade-opacity: 0.67; --fa-beat-fade-scale: 1.075;"></i>
+                <p class="work-heading">Support</p>
+                <p class="work-text">24/7 support</p>
+            </div>
+        </div>
+    </div>
+    <div class="row cate-home">
+        <!--Grid column-->
+        <div class="col-lg-4 col-md-12 mb-4">
+
+            <div class="card mb-4">
+                <img src="@ViewBag.cate[0].FirstPic"
+                     class="img-fluid" />
+                <div class="card-body">
+                    <h5 class="card-title">@ViewBag.cate[0].Name</h5>
+                    <p class="card-text">
+                        @ViewBag.cate[0].Description
+                    </p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <img src="@ViewBag.cate[1].FirstPic"
+                     class="img-fluid" />
+                <div class="card-body">
+                    <h5 class="card-title">@ViewBag.cate[1].Name</h5>
+                    <p class="card-text">
+                        @ViewBag.cate[1].Description
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!--Grid column-->
+        <!--Grid column-->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card">
+                <img src="@ViewBag.cate[2].FirstPic"
+                     class="img-fluid" />
+                <div class="card-body">
+                    <h5 class="card-title">@ViewBag.cate[2].Name</h5>
+                    <p class="card-text">
+                        @ViewBag.cate[2].Description
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!--Grid column-->
+        <!--Grid column-->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card mb-4">
+                <img src="@ViewBag.cate[3].FirstPic"
+                     class="img-fluid" />
+                <div class="card-body">
+                    <h5 class="card-title">@ViewBag.cate[3].Name</h5>
+                    <p class="card-text">
+                        @ViewBag.cate[3].Description
+                    </p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <img src="@ViewBag.cate[4].FirstPic"
+                     class="img-fluid" />
+                <div class="card-body">
+                    <h5 class="card-title">@ViewBag.cate[4].Name</h5>
+                    <p class="card-text">
+                        @ViewBag.cate[4].Description
+                    </p>
+                </div>
+            </div>
+        </div>
+        <hr />
+
+        @*Feature Product*@
+        <section class="text-center">
+            <div class="text-center">
+                <h4><strong style="font-size: 35px;">Feature Product</strong></h4>
+            </div>
+            <p class="mb-4">Our Product</p>
+            <a style="font-size: 50px;" href="../Shop">Visit our Shop</a>
+            <div class="row">
+                @foreach (var item in ViewBag.painting)
+                {
+                    <div class="bg-image shadow-1-strong rounded col-lg-4 col-md-12 mb-4">
+                        <div>
+                            <a href="../PaintingDetail?id=@item.Painting.PaintingId">
+                                <img src="@item.ImageUrl" alt="" class="img-fluid"
+                                     style="width: 100%; height: 100%; object-fit: cover; margin-top: 1%;">
+                            </a>
+                            <div class="badge-overlay">
+                                <!-- Change Badge Position, Color, Text here-->
+                                @if (item.Discount > 0)
+                                {
+                                    <span class="top-left badge orange">Sale @(item.Discount)% Off</span>
+                                }
+
+                            </div>
+                        </div>
+                        <div class="text py-3 pb-4 px-3 text-center">
+                            <h3><a href="../PaintingDetail?id=@item.Painting.PaintingId" class="text-hover">@item.Painting.Name</a></h3>
+                            @if (item.Discount > 0)
+                            {
+                                <span style="text-decoration: line-through; text-decoration-color: gray; color: gray" class="">@item.Price</span>
+                                <span class="">@(item.DiscountPrice)VND</span>
+                            }
+                            else
+                            {
+                                <span class="">@(item.Price)VND</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+        <hr />
+
+        @*Post*@
+        <div class="text-center">
+            <div class="text-center">
+                <h4><strong style="font-size: 35px;">Post you might interested in</strong></h4>
+            </div>
+            <div class="post-home">
+                @foreach (var item in ViewBag.post)
+                {
+                    <div class="card-home">
+                        <div class="card__header">
+                            <img src="@item.ImageUrl" alt="card__image" class="card__image" style="object-fit: cover;height:300px; width:auto;">
+                        </div>
+                        <div class="card__body">
+                            <h4 class="heading"><a href="../PostDetail?id=@item.ID" style="color: black;">@item.Title</a></h4>
+                        </div>
+                        <div class="card__footer">
+                            <div class="user">
+                                <img src="@item.Avatar" alt="user__image" class="user__image">
+                                <div class="user__info">
+                                    <h5>@item.UserName</h5>
+                                    <small>@item.Date</small>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="../PostDetail?id=@item.ID" class="btn btn-primary" data-mdb-ripple-init>
+                                    Read More
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <a style="font-size: 50px;" href="../Post">Visit our forum</a>
+        </div>
+        <hr />
+
+        @*Staff*@
+        <div class="row">
+            <div class="text-center">
+                <h4><strong style="font-size: 35px;">Our staff’s perspective</strong></h4>
+            </div>
+            <div class="column-team">
+                <div class="card-team">
+                    <img src="/Image/profile.jpg" alt="Jane" style="width:100%">
+                    <div class="container-team">
+                        <h2>Nguyen Xuan Thanh</h2>
+                        <p class="title">Manager</p>
+                        <p class="text-hover">thanhnxhe141669@fpt.edu.vn</p>
+                        <p><button class="button-team btn btn-primary"><a href="https://www.facebook.com/profile.php?id=100030195301325" style="color:white">Contact</a></button></p>
+                    </div>
+                </div>
+            </div>
+            <div class="column-team">
+                <div class="card-team">
+                    <img src="/Image/profile.jpg" alt="Jane" style="width:100%">
+                    <div class="container-team" style="height: 230px;">
+                        <h2>Vu Minh Quang</h2>
+                        <p class="title">Designer</p>
+                        <p class="text-hover">quangvmhe130838@fpt.edu.vn</p>
+                        <p>
+                            <button class="button-team btn btn-primary">
+                                <a href="https://www.facebook.com/minhquang180319" style="color:white">Contact</a>
+                            </button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="column-team">
+                <div class="card-team">
+                    <img src="/Image/profile.jpg" alt="Jane" style="width:100%">
+                    <div class="container-team">
+                        <h2>Nguyen Quang Thuan Thanh</h2>
+                        <p class="title">Admin</p>
+                        <p class="text-hover">thanhnqthe150520@fpt.edu.vn</p>
+                        <p><button class="button-team btn btn-primary"><a href="https://www.facebook.com/tomkimmochi" style="color:white">Contact</a></button></p>
+                    </div>
+                </div>
+            </div>
+            <div class="column-team">
+                <div class="card-team">
+                    <img src="/Image/profile.jpg" alt="Jane" style="width:100%">
+                    <div class="container-team">
+                        <h2>Vu Hoang Minh Quan</h2>
+                        <p class="title">Supervisor</p>
+                        <p class="text-hover">quanvhmhe150859@fpt.edu.vn</p>
+                        <p><button class="button-team btn btn-primary"><a href="https://www.facebook.com/profile.php?id=100017740050613" style="color:white">Contact</a></button></p>
+                    </div>
+                </div>
+            </div>
+            <div class="column-team">
+                <div class="card-team">
+                    <img src="/Image/profile.jpg" alt="Jane" style="width:100%">
+                    <div class="container-team" style="height: 230px;">
+                        <h2>Nghiem Huy Son</h2>
+                        <p class="title">Supervisor</p>
+                        <p class="text-hover">sonnhhe160293@fpt.edu.vn</p>
+                        <p><button class="button-team btn btn-primary"><a href="https://www.facebook.com/son.huy.5458" style="color:white">Contact</a></button></p>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</body>

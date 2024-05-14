@@ -1,0 +1,208 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutCustomer";
+}
+<p  style="margin-bottom: 0%;"></p>
+<div class="cart-table">
+    <p style="color: red">@ViewBag.alert</p>
+    <table>
+        <thead>
+            <tr>
+                <th id="table">No</th>
+                <th>Painting Image</th>
+                <th>Painting Name</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (ViewBag.cart.Count == 0)
+            {
+                <p>You don't have any painting in your cart. Let's sgo to the shop</p>
+            }
+            else
+            {
+
+                @foreach (var item in ViewBag.cart)
+                {
+                    <tr>
+                        @if (item.StatusName=="Active")
+                        {
+                            <td><input class="checkout" type="checkbox" id="@item.ID" name="selectedPainting" value=""></td>
+                        }
+                        else
+                        {
+                            <td><p>This painting is not active</p></td>
+                        }
+
+                        <td>
+                            <img src="@item.Image" style="height: 10rem; width: 100%">
+                        </td>
+                        <td>
+                            @item.Name
+                        </td>
+                        <td>
+                            @if (item.Discount > 0)
+                            {
+                                <span style="text-decoration: line-through; text-decoration-color: gray; color: gray" class="">@item.OriginPrice</span>
+                                <span class="">@(item.Price)VND</span>
+                            }
+                            else
+                            {
+                                @(item.Price+"VND")
+                            }
+                        </td>
+                        <td style="width: 20%">
+                            <span class=" mr-2">
+                                <a onclick="decreaseQuantity('@("quantity"+item.ID)', '@("total"+item.ID)', '@item.Price')" 
+                                class="quantity-left-minus btn" data-type="minus"
+                                   data-field="" style="border: none;">
+                                    <i class="bi bi-dash-lg"></i>
+                                </a>
+                            </span>
+                            <input type="text" readonly id=@("quantity"+item.ID) name="num" class="checkoutQuantity"
+                                   value="1" min="" max="" style="width: 20%; text-align: center;">
+                            <span class=" ml-2">
+                                <a onclick="increaseQuantity('@("quantity"+item.ID)', '@item.Quantity', 
+                                '@("total"+item.ID)', '@item.Price');"
+                                   class="quantity-right-plus btn" data-type="plus"
+                                   data-field="" style="border: none;">
+                                    <i class="bi bi-plus-lg"></i>
+                                </a>
+                            </span>
+                            <p style="float: right">@(item.Quantity) left</p>
+                        </td>
+                        <td>
+                            <p id="@("total"+item.ID)">
+                                @(item.Price+"VND")
+                            </p>
+                        </td>
+                        <td>
+                            <a onclick="submitRemove(@item.ID); return false;" style="cursor: pointer;" class="bi bi-trash3"></a>
+                        </td>
+                    </tr>
+                }
+            }
+            <form id="formRemove" asp-controller="Customer" asp-action="RemoveCart" method="post">
+                <input id="idRemove" type="hidden" name="id" value="" />
+            </form>
+            <form id="formCheckout" asp-controller="Customer" asp-action="Cart" method="post"></form>
+        </tbody>
+    </table>
+</div>
+<div style="text-align: center; margin-bottom: 5%;">
+    <a onclick="checkout();" value="" class="btn btn-primary btn-addtocart white">
+        Proceed to checkout
+    </a><br /><br />
+    <a href="CheckOut">Check out more beautiful art</a>
+</div>
+<script>
+
+    window.addEventListener('load', function () {
+        var table = document.getElementById('table');
+        table.scrollIntoView({ block: 'center' });
+    });
+
+    document.querySelector('.quantity-left-minus').addEventListener('click', function () {
+        var quantityInput = document.getElementById('quantity');
+        var currentValue = parseInt(quantityInput.value);
+
+        if (currentValue > 1) {
+            quantityInput.value = currentValue - 1;
+        }
+    });
+
+    document.querySelector('.quantity-right-plus').addEventListener('click', function () {
+        var quantityInput = document.getElementById('quantity');
+        var currentValue = parseInt(quantityInput.value);
+
+        if (currentValue < 1000) {
+            quantityInput.value = currentValue + 1;
+        }
+    });
+
+    //method to submit remove item from cart
+    function submitRemove(id) {
+        Swal.fire({
+            icon: "question",
+            title: "Do you wanna remove this painting from your cart?",
+            showCancelButton: true,
+        }).then(result => {
+            if (result.isConfirmed) {
+                var form = document.getElementById('formRemove');
+                var idRemove = document.getElementById('idRemove');
+                idRemove.value = id;
+                form.submit();
+            } else {
+                Swal.fire("Changes are not saved", "", "info");
+                return false;
+            }
+        });
+    }
+
+    //method to increase quantity
+    function increaseQuantity(id, max, totalID, price) {
+        var numberBox = document.getElementById(id);
+        var currentValue = parseInt(numberBox.value); // Convert value to a number
+        var totalBox = document.getElementById(totalID);
+        if (currentValue >= max) {
+            numberBox.value = max;
+        } else {
+            numberBox.value = currentValue + 1; // Perform addition
+            var total = (currentValue + 1) * parseInt(price.replace(/,/g, ''));
+            totalBox.textContent = total.toLocaleString('en-US') + "VND";
+        }
+        
+    }
+
+    //method to decrease quantity
+    function decreaseQuantity(id, totalID, price) {
+        var numberBox = document.getElementById(id);
+        var totalBox = document.getElementById(totalID);
+        var currentValue = parseInt(numberBox.value); // Convert value to a number
+        if (currentValue <= 1) {
+            numberBox.value = 1;
+        } else {
+            numberBox.value = currentValue - 1; // Perform subtraction
+            var total = (currentValue - 1) * parseInt(price.replace(/,/g, ''));
+            totalBox.textContent = total.toLocaleString('en-US') + "VND";
+        }
+
+    }
+
+    //method to send data to checkout
+    function checkout() {
+        
+        var checked = document.querySelectorAll(".checkout");
+        var checkedCheckbox = document.querySelector(".checkout:checked");
+        if (!checkedCheckbox) {
+            Swal.fire("You havent select any painting to checkout!", "", "error");
+        }
+        else {
+            var form = document.getElementById('formCheckout');
+            var checkoutQuantity = document.querySelectorAll(".checkoutQuantity");
+            for (var i = 0; i < checked.length; i++) {
+                if (checked[i].checked) {
+                    var idInput = document.createElement("input");
+                    idInput.setAttribute("type", "text");
+                    idInput.setAttribute("name", "id[]");
+                    idInput.setAttribute("value", checked[i].id);
+                    form.appendChild(idInput);
+
+                    var quantityInput = document.createElement("input");
+                    quantityInput.setAttribute("type", "text");
+                    quantityInput.setAttribute("name", "quantity[]");
+                    quantityInput.setAttribute("value", checkoutQuantity[i].value);
+                    form.appendChild(quantityInput);
+                }
+            }
+            form.submit();
+        }
+    }
+
+
+</script>

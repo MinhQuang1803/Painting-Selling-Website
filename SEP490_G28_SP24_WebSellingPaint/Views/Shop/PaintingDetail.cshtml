@@ -1,0 +1,920 @@
+﻿@inject IHttpContextAccessor context
+@using SEP490_G28_SP24_WebSellingPaint.FunctionCode
+@{
+    Layout = "_LayoutCustomerWithNoSlider";
+}
+<style>
+    .btn:hover {
+        background-color: #82AE46;
+    }
+
+    .btn {
+        border-style: groove;
+        border-color: #82AE46;
+    }
+
+    .image-list {
+        margin-left: 2%;
+    }
+
+        .image-list img {
+            width: 100px;
+            height: 100px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+    #background-div {
+        position: relative;
+        width: 100%;
+        height: 500px;
+        border: 1px solid #000;
+        margin-top: 20px;
+        overflow: hidden;
+    }
+
+        #background-div img {
+            width: 20%;
+            height: 20%;
+            position: absolute;
+            top: 20%;
+            left: 40%;
+            cursor: move;
+        }
+
+    .color-list {
+        display: flex;
+        margin-top: 10px;
+    }
+
+    .color {
+        width: 60px;
+        height: 50px;
+        border: 1px solid #000;
+        margin-right: 5px;
+        cursor: pointer;
+    }
+
+    #myModal {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        justify-content: center;
+        align-items: center;
+        background-size: cover;
+        background-position: center;
+    }
+</style>
+<script>
+
+    window.addEventListener('load', function () {
+        scrollToComment();
+    });
+
+
+    function scrollToComment() {
+        var commentID = '@context.HttpContext.Session.GetString("commentID")';
+        if (commentID != "") {
+            var comment = document.getElementById(commentID);
+    @{
+        context.HttpContext.Session.Remove("commentID");
+    }
+                                    if (comment) {
+                comment.scrollIntoView({ block: 'center' });
+            }
+        }
+    }
+
+    //method to validate buynow function
+    function buyNow() {
+        var quantity = document.getElementById('quantity').value;
+        if (quantity <= 0) {
+            alert("To buy this painting, quantity must greater than 0");
+            return false;
+        }
+        else {
+            var quantity = document.getElementById('quantity').value;
+            var form = document.getElementById('buynow');
+            var quantityCheckout = document.getElementById('quantityCheckout');
+            quantityCheckout.value = quantity;
+            form.submit();
+        }
+    }
+
+    //method to check max quantity of painting
+    function checkMax(max) {
+        var quantityBox = document.getElementById('quantity');
+        if (quantityBox.value >= max) {
+            quantityBox.value = max - 1;
+        }
+    }
+
+    //method to show the reply box
+    function showReplyBox(replyBoxID) {
+        var replyBox = document.getElementById(replyBoxID);
+        if (replyBox.style.display == "none") {
+            replyBox.style.display = "block";
+        }
+        else replyBox.style.display = "none";
+    }
+
+    //method to submit rep comment
+    function submitRepComment(contentBoxID, formID) {
+        var contentBox = document.getElementById(contentBoxID);
+        if (contentBox.value.trim() === '') {
+            Swal.fire("You havent comment anything", "", "error");
+            return false;
+        }
+        else {
+            var form = document.getElementById(formID);
+            form.submit();
+        }
+    }
+
+    //method to hide reply box
+    function hideReplyBox(commentID, replyButtonID) {
+        var commentSection = document.getElementById(commentID);
+        while (commentSection.firstChild) {
+            commentSection.removeChild(commentSection.firstChild);
+        }
+        var replyButton = document.getElementById(replyButtonID);
+        replyButton.style.display = "inline-block";
+    }
+
+    //method to hide reply comment
+    function hideShowComment(commentRootID, repButtonID) {
+        var repComments = document.getElementById(commentRootID);
+        var showRepButton = document.getElementById(repButtonID);
+        if (repComments.style.display == "block") {
+            repComments.style.display = "none";
+            showRepButton.value = "Show all reply";
+        }
+        else {
+            repComments.style.display = "block";
+            showRepButton.value = "Hide all reply";
+        }
+    }
+
+    //function to submit comment form
+    function submitCommentForm() {
+        var textContent = document.getElementById('textContent');
+        if (textContent.value.trim() === '') {
+            Swal.fire("You havent comment anything", "", "error");
+            return false;
+        }
+        else {
+            var form = document.getElementById('commentForm');
+            //alert("nop form");
+            form.submit();
+        }
+    }
+
+    //function to submit delete comment form
+    function submitDeleteComment(formID) {
+        Swal.fire({
+            icon: "question",
+            title: "Are you sure you want to delete this comment?",
+            showCancelButton: true,
+        }).then(result => {
+            if (result.isConfirmed) {
+                var deleteForm = document.getElementById(formID);
+                deleteForm.submit();
+            } else {
+                Swal.fire("Changes are not saved", "", "info");
+                return false;
+            }
+        });
+    }
+
+    //function to submit add to cart
+    function addToCart(id) {
+        var cartData = document.getElementById('cart').dataset.cart;
+        var cartArray = JSON.parse(cartData);
+        Swal.fire({
+            icon: "question",
+            title: "Are you sure you want to Add this product to cart?",
+            showCancelButton: true,
+        }).then(result => {
+            if (result.isConfirmed) {
+                if (cartArray.includes(id)) {
+                    Swal.fire("You already have this painting in your cart", "", "error");
+                }
+                else {
+                    var form = document.getElementById('addToCart');
+                    form.submit();
+                }
+            } else {
+                Swal.fire("Changes are not saved", "", "info");
+                return false;
+            }
+        });
+    }
+
+
+</script>
+<section class="" style="background-color: white;">
+    @{
+        int[] cart = context.HttpContext.Session.GetComplexData<int[]>("cart");
+    }
+    <div id="cart" data-cart="@Json.Serialize(cart)"></div>
+    <section class="ftco-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 mb-5">
+                    <div class="slideshow-container gallery">
+                        @foreach (var image in ViewBag.imageList)
+                        {
+                            <div style="text-align: center;" class="mySlides gallery__item">
+                                <div class="numbertext"></div>
+                                <img src="@image.Url" style="width: auto;height: 350px;">
+                            </div>
+                        }
+
+                        @* <div class="mySlides">
+                        <div class="numbertext">3 / 3</div>
+                        <img src="/image/login.jpg" style="width:100%;height: 350px;">
+                        </div> *@
+
+                        <a class="prev" onclick="plusSlides(-1)">❮</a>
+                        <a class="nexts" onclick="plusSlides(1)">❯</a>
+
+                    </div>
+                    <br>
+
+                    <div style="text-align:center">
+                        @for (int i = 1; i <= ViewBag.imageList.Count; i++)
+                        {
+                            <span class="dot" onclick="currentSlide(@i)"></span>
+                        }
+                    </div>
+                    <p class="addtocart">
+                        <a onclick="" value="" class="btn btn-danger btn-addtocart white"
+                           style="margin-top: 3%; margin-left: 26%;" id="popup-btn-pop">
+                            Hang the Painting on the wall
+                        </a>
+                    </p>
+                </div>
+                <!-- Full-width images with number text -->
+
+                <div class="col-lg-6 product-details pl-md-5 ftco-animate right-picture-details">
+                    <h3>@ViewBag.painting.Name</h3>
+                    <div class="rating d-flex"></div>
+                    <p class="price">
+                        @if (ViewBag.painting.Discount > 0)
+                        {
+                            <span style="text-decoration: line-through; text-decoration-color: gray; color: gray" class="price-text" data-price="@ViewBag.painting.Price">@ViewBag.painting.Price</span>
+                            <span class="price-text" data-price="@(ViewBag.painting.Price - (ViewBag.painting.Price * ViewBag.painting.Discount / 100))">@(ViewBag.painting.Price - (ViewBag.painting.Price * ViewBag.painting.Discount / 100))VND</span>
+                        }
+                        else
+                        {
+                            <span class="price-text" data-price="@(ViewBag.painting.Price - (ViewBag.painting.Price * ViewBag.painting.Discount / 100))">@(ViewBag.painting.Price - (ViewBag.painting.Price * ViewBag.painting.Discount / 100))VND</span>
+                        }
+
+                    </p>
+                    <p>
+                        <textarea readonly id="w3review" name="w3review" rows="4" cols="40">@ViewBag.painting.Description</textarea>
+                    </p>
+                    <p>Quantity left: @ViewBag.painting.Quantity</p>
+                    <div class="">
+                        <div class="mb-3">
+                            <span class=" mr-2">
+                                <a class="quantity-left-minus btn" data-type="minus"
+                                   data-field="">
+                                    <i class="bi bi-dash-lg"></i>
+                                </a>
+                            </span>
+                            <input readonly type="number" id="quantity" name="num"
+                                   value="@(ViewBag.painting.Quantity > 0 ? 1 : 0)">
+                            <span class=" ml-2">
+                                <a onclick="checkMax(@ViewBag.painting.Quantity)" class="quantity-right-plus btn" data-type="plus"
+                                   data-field="">
+                                    <i class="bi bi-plus-lg"></i>
+                                </a>
+                            </span>
+                        </div>
+
+                    </div>
+                    <p class="addtocart">
+                        @if (context.HttpContext.Session.GetInt32("UserID") != null)
+                        {
+                            <form id="addToCart" asp-controller="Shop" asp-action="PaintingDetail" method="post">
+                                <input type="hidden" name="id" value="@ViewBag.objectID" />
+                                <input type="hidden" name="action" value="addCart" />
+                                <input type="hidden" name="userID" value="@context.HttpContext.Session.GetInt32("UserID")">
+                                <input type="hidden" name="objectID" value="@ViewBag.objectID">
+                                <a onclick="addToCart(@ViewBag.objectID);" value="Add to cart"
+                                   class="btn btn-primary btn-addtocart white">
+                                    Add
+                                    to Cart <i class="bi bi-cart-plus"></i>
+                                </a>
+                            </form>
+                        }
+                    <p style="color: red">@ViewBag.alert</p>
+                    <p style="color: green">@ViewBag.success</p>
+
+                    <a onclick="buyNow(); return false;" value="Buy item"
+                       class="btn btn-primary btn-addtocart white">
+                        Buy Now <i class="bi bi-cart-plus"></i>
+                    </a>
+                    <form id="buynow" asp-controller="Shop" asp-action="BuyNow" method="post">
+                        <input type="hidden" value="@ViewBag.objectID" name="id" />
+                        <input id="quantityCheckout" type="hidden" value="" name="quantity" />
+                    </form>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="shop-info-wrapper">
+        <div class="shop-info">
+            <div class="shop-info__left">
+                <div class="shop-info__avt circular-image">
+                    <img src="@ViewBag.author.ImageUrl" alt="Your Image">
+                </div>
+                <div class="shop-info__actions">
+                    <h4 class="shop-info__name">
+                        @ViewBag.author.UserName
+                    </h4>
+                </div>
+            </div>
+            <div class="vertical-line"></div>
+            <div class="shop-info__right">
+                <div class="shop-info__detail" id="phoneNumber">
+                    <span class="bold">Phone:</span> @ViewBag.author.PhoneNumber
+                </div>
+                <div class="shop-info__detail" id="email">
+                    <span class="bold">Email:</span> @ViewBag.author.Email
+                </div>
+                <div class="shop-info__detail" id="address">
+                    <span class="bold">Address:</span> @ViewBag.author.Address
+                </div>
+                <div style="margin-bottom: -2%;" class="shop-info__detail" id="totalNumberItems">
+                    <a class="bold">About Author</a>
+                </div>
+                <div class="shop-info__detail" id="totalSaleItems">
+                    <span class="bold"></span> @ViewBag.author.ArtistBackground
+                </div>
+            </div>
+        </div>
+    </div>
+    <section class="ftco-section">
+        <div class="container" style="margin-top: 5%;">
+            <div class="row justify-content-center mb-3 pb-3">
+                <div class="col-md-12 heading-section text-center ftco-animate">
+                    <h2 class="mb-4">Related Products</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 col-xl-12">
+                    <div class="row row-pb-md">
+                        @foreach (var painting in ViewBag.related)
+                        {
+                            <div class="bg-image shadow-1-strong rounded col-lg-3 col-md-12 mb-4">
+                                <div class="product">
+                                    <a href="../PaintingDetail?id=@painting.PaintingID">
+                                        <div>
+                                            <img src="@painting.ImageUrl" alt="" class="img-fluid"
+                                                 style="width: 100%; height: 250px; object-fit: cover; margin-top: 3%;">
+                                            @if (painting.Discount > 0)
+                                            {
+                                                <div class="badge-overlay">
+                                                    <!-- Change Badge Position, Color, Text here-->
+                                                    <span class="top-left badge orange">
+                                                        Sale
+
+                                                        <span>&ensp; @(painting.Discount + "%")</span>
+
+                                                        Off
+                                                    </span>
+                                                </div>
+                                            }
+                                        </div>
+
+                                    </a>
+                                    <div class="text py-3 pb-4 px-3 text-center">
+                                        <h3><a href="../PaintingDetail?id=@painting.PaintingID">@painting.Name</a></h3>
+                                        @if (painting.Discount > 0)
+                                        {
+                                            <span style="text-decoration: line-through; text-decoration-color: gray; color: gray" class="price-text" data-price="@painting.Price">@painting.Price</span>
+                                            <span class="price-text" data-price="@(painting.Price - (painting.Price * painting.Discount / 100))">@(painting.Price - (painting.Price * painting.Discount / 100))VND</span>
+                                        }else{
+                                            <span class="price-text" data-price="@painting.Price">@painting.Price</span>
+
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+            </div>
+
+
+            <!--            comment section-->
+            <div class="comment-class">
+                @if (context.HttpContext.Session.GetString("Email") == null)
+                {
+                    <h3 class="mb-5">You need to login to view comment section</h3>
+                }
+                else
+                {
+                    <div class="">
+                        <h3 class="mb-5" style="text-shadow: 2px 2px 5px lightgreen; font-size: 30px;"> Comment @ViewBag.commentID</h3>
+                        <form id="commentForm" asp-controller="Shop" asp-action="PaintingDetail" method="post">
+                            <input type="hidden" name="userID" value="@context.HttpContext.Session.GetInt32("UserID")">
+                            <input type="hidden" name="action" value="comment">
+                            <input type="hidden" name="objectID" value="@ViewBag.objectID">
+                            <div style="margin-bottom: 30px;" id="comment">
+                                <textarea name="content" style="width: 100%; font-size: 20px;border: solid black 2px; margin-top: -30px; border-radius: 7px; border-color: darkblue;"
+                                          class="reply-text" id="textContent" placeholder="Enter your comment here..."></textarea>
+                                <div class="btn-container">
+                                    <input style="font-size: 18px" type="button" onclick="submitCommentForm();" value="Submit" class="btn">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="scrollDiv" style="overflow: auto; height: 500px;">
+                        @* comment root *@
+                        <div id="commentSection">
+                            @for (int index = 0; index < ViewBag.commentRoot.Count; index++)
+                            {
+                                <div id="@ViewBag.commentRoot[index].ID" style="height: 8%; width: 8%; overflow: hidden; display: inline-block; vertical-align: top;">
+                                    <img src="@ViewBag.commentRoot[index].Avatar" style="max-width: 100%; max-height: 100%;" /> <!-- Set max-width and max-height of image -->
+                                </div>
+                                <div class="" style="display: inline-block; margin-left: 10px; vertical-align: top; margin-top: 2%; font-size: 20px; font-family: monospace;">
+                                    @if (ViewBag.commentRoot[index].UserID == context.HttpContext.Session.GetInt32("UserID"))
+                                    {
+                                        <div class="user-name">You</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="user-name">@ViewBag.commentRoot[index].UserName</div>
+                                    }
+                                    <div class="date-time">@ViewBag.commentRoot[index].Date</div>
+                                </div>
+                                <p style="font-size: 20px;font-family: monospace;">@ViewBag.commentRoot[index].Content</p>
+                                <input id=@("replyButton"+ViewBag.commentRoot[index].ID) style="padding: 0.3%;"
+                                       onclick="showReplyBox('@("replyBox"+ViewBag.commentRoot[index].ID)');" value="Reply" type="button" />
+                                @if (ViewBag.commentRep[index].Count > 0)
+                                {
+                                    <input id=@("showRepButton"+ViewBag.commentRoot[index].ID)
+                                           onclick="hideShowComment('@("commentRep"+ViewBag.commentRoot[index].ID)', '@("showRepButton"+ViewBag.commentRoot[index].ID)');"
+                                           style="padding: 0.3%; " value="Hide all reply" type="button" />
+                                }
+                                @if (ViewBag.commentRoot[index].UserID == context.HttpContext.Session.GetInt32("UserID"))
+                                {
+                                    <input onclick="submitDeleteComment('@("deleteComment"+ViewBag.commentRoot[index].ID)')" style="padding: 0.3%;" value="Delete" type="button" />
+                                }
+                                else
+                                {
+                                    <input style="padding: 0.3%;" value="Report" type="button" />
+                                }
+                                <form style="display: none;" id="@("replyBox"+ViewBag.commentRoot[index].ID)" asp-controller="Shop" asp-action="PaintingDetail" method="post">
+                                    <input type="hidden" name="userID" value="@context.HttpContext.Session.GetInt32("UserID")" />
+                                    <input type="hidden" name="action" value="rep" />
+                                    <input type="hidden" name="commentRepID" value="@ViewBag.commentRoot[index].ID" />
+                                    <input type="hidden" name="objectID" value="@ViewBag.objectID">
+                                    <textarea style="border: solid black 1px;" rows="4" cols="50" name="content"
+                                              placeholder="Enter your reply here..." id="@("contentBox"+ViewBag.commentRoot[index].ID)"></textarea>
+                                    <input onclick="submitRepComment('@("contentBox"+ViewBag.commentRoot[index].ID)', '@("replyBox"+ViewBag.commentRoot[index].ID)');"
+                                           value="Submit" type="button" id="">
+                                    <input onclick="showReplyBox('@("replyBox"+ViewBag.commentRoot[index].ID)');" value="Cancel" type="button" id="">
+                                </form>
+                                <form id=@("deleteComment"+ViewBag.commentRoot[index].ID) asp-controller="Shop" asp-action="PaintingDetail" method="post">
+                                    <input type="hidden" value="delete" name="action" />
+                                    <input type="hidden" value="@ViewBag.commentRoot[index].ID" name="commentID" />
+                                    <input type="hidden" name="objectID" value="@ViewBag.objectID">
+                                </form>
+                                <div id="@("commentRep"+ViewBag.commentRoot[index].ID)" class="comment-reply">
+                                    @foreach (var commentRep in ViewBag.commentRep[index])
+                                    {
+                                        @* comment reply *@
+                                        <div style="margin-left: 5%; display: block;" id="">
+                                            <div id="@commentRep.Item1" style="height: 8%; width: 8%; overflow: hidden; display: inline-block; vertical-align: top;">
+                                                <img src="@commentRep.Item6" style="max-width: 100%; max-height: 100%;" /> <!-- Set max-width and max-height of image -->
+                                            </div>
+                                            <div class="" style="display: inline-block; margin-left: 10px; vertical-align: top; margin-top: 2%; font-size: 20px;font-family: monospace;">
+                                                @if (commentRep.Item4 == context.HttpContext.Session.GetInt32("UserID"))
+                                                {
+                                                    <div class="user-name">You</div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="user-name">@commentRep.Item5</div>
+                                                }
+                                                <div class="date-time">@commentRep.Item2</div>
+                                            </div>
+                                            <p style="font-size: 20px;font-family: monospace;">@commentRep.Item3</p>
+                                            <input id=@("replyButton"+commentRep.Item1) style="padding: 0.3%;"
+                                                   onclick="showReplyBox('@("replyBox"+commentRep.Item1)');" value="Reply" type="button" />
+                                            @if (commentRep.Item4 == context.HttpContext.Session.GetInt32("UserID"))
+                                            {
+                                                <input onclick="submitDeleteComment('@("deleteComment"+commentRep.Item1)');" style="padding: 0.3%;" value="Delete" type="button" />
+                                            }
+                                            else
+                                            {
+                                                <input style="padding: 0.3%;" value="Report" type="button" />
+                                            }
+                                            <form style="display: none;" id="@("replyBox"+commentRep.Item1)" asp-controller="Shop" asp-action="PaintingDetail" method="post">
+                                                <input type="hidden" name="userID" value="@context.HttpContext.Session.GetInt32("UserID")" />
+                                                <input type="hidden" name="action" value="rep" />
+                                                <input type="hidden" name="commentRepID" value="@ViewBag.commentRoot[index].ID" />
+                                                <input type="hidden" name="objectID" value="@ViewBag.objectID">
+                                                <textarea style="border: solid black 1px;" rows="4" cols="50" name="content"
+                                                          placeholder="Enter your reply here..." id="@("contentBox"+commentRep.Item1)"></textarea>
+                                                <input onclick="submitRepComment('@("contentBox"+commentRep.Item1)', '@("replyBox"+commentRep.Item1)');"
+                                                       value="Submit" type="button" id="">
+                                                <input onclick="showReplyBox('@("replyBox"+commentRep.Item1)');" value="Cancel" type="button" id="">
+                                            </form>
+                                            <form id="@("deleteComment"+commentRep.Item1)" asp-controller="Shop" asp-action="PaintingDetail" method="post">
+                                                <input type="hidden" value="delete" name="action" />
+                                                <input type="hidden" value="@commentRep.Item1" name="commentID" />
+                                                <input type="hidden" name="objectID" value="@ViewBag.objectID">
+                                            </form>
+                                            @* <div id="replyBox">
+                                <textarea style="border: solid black 1px;" rows="4" cols="50"
+                                name="comment" placeholder="Enter your reply here..."></textarea>
+                                <input value="Submit" type="submit">
+                                <input value="Cancel" type="button">
+                                </div> *@
+                                        </div>
+                                    }
+                                </div>
+                                <hr style="color: darkred" />
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+    </section>
+
+</section>
+<div id="myModal" class="modal-pop">
+
+    <!-- Modal content -->
+    <div class="modal-content-pop">
+        <div class="modal-header-pop">
+            <span class="close">&times;</span>
+            <div class="" style="text-align: center;">
+                <h1>Hang the Painting on the wall</h1>
+            </div>
+        </div>
+        <div class="modal-body-popup-pop">
+            <div>
+                <div id="background-div"
+                     style="background-image: url('/Image/background/congso7.png');background-size: cover;background-position: center center;">
+                    <img id="moveable-image" src="@ViewBag.imagePop.Url" alt="Moveable Image">
+                </div>
+                <span style="font-size: 20px; font-weight:bold">Choose Your Room Color</span><br>
+                <div class="color-list">
+
+                    <div class="color" style="background-color: #ff0000;" onclick="changeBackgroundColor('#ff0000')"></div>
+                    <div class="color" style="background-color: #00ff00;" onclick="changeBackgroundColor('#00ff00')"></div>
+                    <div class="color" style="background-color: #0000ff;" onclick="changeBackgroundColor('#0000ff')"></div>
+                    <div class="color" style="background-color: white;" onclick="changeBackgroundColor('white')"></div>
+                    <div class="color" style="background-color: black;" onclick="changeBackgroundColor('black')"></div>
+                    <div class="color" style="background-color: pink;" onclick="changeBackgroundColor('pink')"></div>
+                    <div class="color" style="background-color: grey;" onclick="changeBackgroundColor('grey')"></div>
+                    <div class="color" style="background-color: brown;" onclick="changeBackgroundColor('brown')"></div>
+                    <div class="color" style="background-color: green;" onclick="changeBackgroundColor('green')"></div>
+                    <div class="color" style="background-color: skyblue;" onclick="changeBackgroundColor('skyblue')"></div>
+                    <div class="color" style="background-color: salmon;" onclick="changeBackgroundColor('salmon')"></div>
+                </div>
+            </div>
+            <div class="image-list">
+                <div>
+                    <span style="font-size: 20px;font-weight:bold">Choose Your Room Image</span><br>
+                    <input type="file" id="fileInput" accept="image/*" onchange="previewImage(event)" hidden>
+                    <button class="btn" onclick="setBackground()">Choose Image</button>
+                </div>
+                <div>
+                    <span style="font-size: 20px;font-weight:bold">Take A Photo Of Your Room</span><br>
+                    <button class="btn" onclick="takePhoto()">WEBCAM</button>
+                </div>
+                <div>
+                    <span style="font-size: 20px;font-weight:bold">Choose A Room Background</span><br>
+                    <img src="/Image/background/congso7.png" onclick="changeBackground('/Image/background/congso7.png')"
+                         alt="Painting 1">
+                    <img src="/Image/background/phongkhach13.png"
+                         onclick="changeBackground('/Image/background/phongkhach13.png')" alt="Painting 2">
+                    <img src="/Image/background/phongkhach14.png"
+                         onclick="changeBackground('/Image/background/phongkhach14.png')" alt="Painting 1">
+                    <img src="/Image/background/phongkhach16.png"
+                         onclick="changeBackground('/Image/background/phongkhach16.png')" alt="Painting 1">
+                    <img src="/Image/background/phongkhach2.png" onclick="changeBackground('/Image/background/phongkhach2.png')"
+                         alt="Painting 1">
+                    <img src="/Image/background/phongngu2.png" onclick="changeBackground('/Image/background/phongngu2.png')"
+                         alt="Painting 1">
+
+
+                    <div>
+                        <span style="font-size: 20px;">Resize The Painting</span><br>
+                        <input type="range" id="resizeRange" min="1" max="50" value="20" onchange="resizeImage(this.value)">
+                    </div>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var modal = document.getElementById("myModal");
+
+    var btn = document.getElementById("popup-btn-pop");
+
+    var span = document.getElementsByClassName("close")[0];
+    var btnCancel = document.getElementsByClassName("cancel")[0];
+
+    btn.onclick = function () {
+        modal.style.display = "block";
+    }
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    btnCancel.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
+<script>
+    function changeBackground(imageUrl) {
+        var backgroundDiv = document.getElementById("background-div");
+        backgroundDiv.style.backgroundImage = `url(${imageUrl})`;
+        backgroundDiv.style.backgroundSize = "cover";
+        backgroundDiv.style.backgroundPosition = "center";
+    }
+</script>
+<script>
+    function previewImage(event) {
+        var file = event.target.files[0];
+        var reader = new FileReader();
+        reader.onload = function (event) {
+            var imageUrl = event.target.result;
+            var backgroundDiv = document.getElementById("background-div");
+            backgroundDiv.style.backgroundImage = `url(${imageUrl})`;
+            backgroundDiv.style.backgroundSize = "cover";
+            backgroundDiv.style.backgroundPosition = "center";
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function setBackground() {
+        var fileInput = document.getElementById("fileInput");
+        fileInput.click();
+    }
+</script>
+<script>
+    var moveableImage = document.getElementById("moveable-image");
+    var backgroundDiv = document.getElementById("background-div");
+
+    function previewBackground(event) {
+        var file = event.target.files[0];
+        var reader = new FileReader();
+        reader.onload = function (event) {
+            var imageUrl = event.target.result;
+            backgroundDiv.style.backgroundImage = `url(${imageUrl})`;
+            backgroundDiv.style.backgroundSize = "cover";
+            backgroundDiv.style.backgroundPosition = "center";
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function setBackground() {
+        var fileInput = document.getElementById("fileInput");
+        fileInput.click();
+    }
+
+    dragElement(moveableImage);
+
+    function dragElement(element) {
+        var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        element.onmousedown = dragMouseDown;
+
+        function dragMouseDown(e) {
+            e = e || window.event;
+            e.preventDefault();
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(e) {
+            e = e || window.event;
+            e.preventDefault();
+            var newX = element.offsetLeft - (pos3 - e.clientX);
+            var newY = element.offsetTop - (pos4 - e.clientY);
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+
+            // Kiểm tra giới hạn di chuyển của hình ảnh
+            if (newX >= 0 && newX <= backgroundDiv.offsetWidth - element.offsetWidth) {
+                element.style.left = newX + "px";
+            }
+            if (newY >= 0 && newY <= backgroundDiv.offsetHeight - element.offsetHeight) {
+                element.style.top = newY + "px";
+            }
+        }
+
+        function closeDragElement() {
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+    }
+    function resizeImage(value) {
+        moveableImage.style.width = value + "%";
+        moveableImage.style.height = value + "%";
+    }
+
+    function changeBackgroundColor(color) {
+        var backgroundDiv = document.getElementById("background-div");
+        backgroundDiv.style.backgroundColor = color;
+    }
+
+</script>
+<script>
+    function takePhoto() {
+        // Truy cập camera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                var video = document.createElement('video');
+                var canvas = document.getElementById('canvas');
+                var backgroundDiv = document.getElementById('background-div');
+
+                // Hiển thị video từ camera trên canvas
+                video.srcObject = stream;
+                video.onloadedmetadata = function (e) {
+                    video.play();
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    var context = canvas.getContext('2d');
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    // Chuyển ảnh từ canvas thành dữ liệu URL
+                    var imageUrl = canvas.toDataURL('image/png');
+
+                    // Hiển thị ảnh nền trong background-div
+                    backgroundDiv.style.backgroundImage = 'url(' + imageUrl + ')';
+                    backgroundDiv.style.backgroundSize = 'cover';
+                    backgroundDiv.style.backgroundPosition = 'center';
+
+                    // Dừng truy cập camera và xóa video
+                    stream.getTracks().forEach(function (track) {
+                        track.stop();
+                    });
+                    video.remove();
+                };
+            })
+            .catch(function (err) {
+                console.error('Could not access the camera: ' + err);
+            });
+    }
+
+</script>
+<script>
+    document.querySelector('.quantity-left-minus').addEventListener('click', function () {
+        var quantityInput = document.getElementById('quantity');
+        var currentValue = parseInt(quantityInput.value);
+
+        if (currentValue > 1) {
+            quantityInput.value = currentValue - 1;
+        }
+    });
+
+    document.querySelector('.quantity-right-plus').addEventListener('click', function () {
+        var quantityInput = document.getElementById('quantity');
+        var currentValue = parseInt(quantityInput.value);
+
+        if (currentValue < 1000) {
+            quantityInput.value = currentValue + 1;
+        }
+    });
+</script>
+<script>
+    let slideIndex = 1;
+    showSlides(slideIndex);
+
+    function plusSlides(n) {
+        showSlides(slideIndex += n);
+    }
+
+    function currentSlide(n) {
+        showSlides(slideIndex = n);
+    }
+
+    function showSlides(n) {
+        let i;
+        let slides = document.getElementsByClassName("mySlides");
+        let dots = document.getElementsByClassName("dot");
+        if (n > slides.length) { slideIndex = 1 }
+        if (n < 1) { slideIndex = slides.length }
+        for (i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";
+        }
+        for (i = 0; i < dots.length; i++) {
+            dots[i].className = dots[i].className.replace(" active", "");
+        }
+        slides[slideIndex - 1].style.display = "block";
+        dots[slideIndex - 1].className += " active";
+    }
+</script>
+<!--js modal image-->
+<script>
+    const images = document.querySelectorAll(".gallery__item img");
+    let imgSrc;
+    // get images src onclick
+    images.forEach((img) => {
+        img.addEventListener("click", (e) => {
+            imgSrc = e.target.src;
+            //run modal function
+            imgModal(imgSrc);
+        });
+    });
+    //creating the modal
+    let imgModal = (src) => {
+        const modal = document.createElement("div");
+        modal.setAttribute("class", "modal");
+        //add the modal to the main section or the parent element
+        document.querySelector(".container").append(modal);
+        //adding image to modal
+        const newImage = document.createElement("img");
+        newImage.setAttribute("src", src);
+        //creating the close button
+        const closeBtn = document.createElement("i");
+        closeBtn.setAttribute("class", "bi bi-x-lg closeBtn");
+        //close function
+        closeBtn.onclick = () => {
+            modal.remove();
+        };
+        modal.append(newImage, closeBtn);
+    };
+
+</script>
+<!--js comment-->
+<script>
+    document.addEventListener(
+        "click",
+        function (event) {
+            var target = event.target;
+            var replyForm;
+            if (target.matches("[data-toggle='reply-form']")) {
+                replyForm = document.getElementById(target.getAttribute("data-target"));
+                replyForm.classList.toggle("d-none");
+            }
+        },
+        false
+    );
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var moreBoxes = document.querySelectorAll('.moreBox');
+        moreBoxes.forEach(function (box, index) {
+            if (index < 2) {
+                box.style.display = 'block';
+            }
+        });
+
+        var hiddenBoxes = document.querySelectorAll('.moreBox');
+        if (hiddenBoxes.length !== 0) {
+            document.getElementById('loadMore').style.display = 'block';
+        }
+
+        document.getElementById('loadMore').addEventListener('click', function (e) {
+            e.preventDefault();
+            hiddenBoxes.forEach(function (box) {
+                box.style.display = 'block';
+            });
+            /*
+            if (document.querySelectorAll('.moreBox:hidden').length === 0) {
+                console.log("Element is hidden.");
+                document.getElementById('loadMore').style.display = 'none';
+            }
+            */
+        });
+    });
+
+</script>
+<script>
+    function formatPriceWithCommas(price) {
+        return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    // Get all elements with class 'price-text'
+    var priceElements = document.querySelectorAll('.price-text');
+
+    // Loop through each element and format its price
+    priceElements.forEach(function (element) {
+        var price = parseInt(element.getAttribute('data-price')); // Get the price value
+        element.textContent = formatPriceWithCommas(price) + 'VND'; // Update the text content
+    });
+</script>

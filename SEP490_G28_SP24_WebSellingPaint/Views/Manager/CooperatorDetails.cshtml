@@ -1,0 +1,528 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutManager";
+}
+<main>
+
+    <div class="page-header add">
+        <h1>Cooperator ManageMent</h1>
+        <div class="d-flex">
+            <button style="margin-right: 1rem; margin-left: 4%" id="popup-btn-coopAdd">Update Cooperator</button>
+            <button style="margin-right: 1rem; margin-left: 4%"><a href="CooperatorManagement" style="color: white; text-decoration:none;">Back</a></button>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <div class="modal-body">
+            <div class="leaderboard">
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Cooperator Name</span>
+                        <span class="leaderboard__value">@ViewBag.coop.Name</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Cooperator Phone</span>
+                        <span class="leaderboard__value">@ViewBag.coop.Phone</span>
+                    </div>
+                </div>
+            </div>
+            <div class="leaderboard">
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Cooperator Email</span>
+                        <span class="leaderboard__value">@ViewBag.coop.Email</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Status</span>
+                        <span class="leaderboard__value">@ViewBag.coop.StatusName</span>
+                    </div>
+                </div>
+            </div>
+            <div class="leaderboard">
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Cooperator Website</span>
+                        <span class="leaderboard__value"><a href="@ViewBag.coop.Web">@ViewBag.coop.Web</a></span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Cooperator Logo</span>
+                        <span class="leaderboard__value"><img style="height: 5rem; width:auto;" src="@ViewBag.coop.Logo" /></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="tableFixHead">
+            <table width="100%">
+                <thead>
+                    <tr>
+                        <th>
+                            Year
+                            <form id="dataForm" asp-controller="Manager" asp-action="CooperatorDetails" method="post">
+                                <select onchange="submitData();" name="year" id="year">
+                                    @for (int i = ViewBag.endWorkingCoopDate/100; i >= ViewBag.startWorkingCoopDate/100; i--)
+                                    {
+                                        @if (i==ViewBag.selectedYear)
+                                        {
+                                            <option selected value="@i">@i</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    }
+                                    <input type="hidden" name="id" value="@ViewBag.coop.ID" />
+                                </select>
+                            </form>
+                        </th>
+                        <th> Inside City(Normal)(VND)</th>
+                        <th> Inside City(Heavy)(VND)</th>
+                        <th> Inside City(Normal-Fragile)(VND)</th>
+                        <th> Inside City(Heavy-Fragile)(VND)</th>
+                        <th> Outside City(Normal)(VND)</th>
+                        <th> Outside City(Heavy)(VND)</th>
+                        <th> Outside City(Normal-Fragile)(VND)</th>
+                        <th> Outside City(Heavy-Fragile)(VND)</th>
+                        <th> Fee Per/km(VND)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        var inNor = ViewBag.dictInNorFirst;
+                        var inHea = ViewBag.dictInHeaFirst;
+                        var inNorFra = ViewBag.dictInNorFraFirst;
+                        var inHeaFra = ViewBag.dictInHeaFraFirst;
+                        var outNor = ViewBag.dictOutNorFirst;
+                        var outHea = ViewBag.dictOutHeaFirst;
+                        var outNorFra = ViewBag.dictOutNorFraFirst;
+                        var outHeaFra = ViewBag.dictOutHeaFraFirst;
+                        var outPerKM = ViewBag.dictOutPerKMFirst;
+
+                                                            @for (int i = ViewBag.minMonth; i <= ViewBag.maxMonth; i++)
+                        {
+
+                                                                <tr>
+                                                                    <td scope="row">
+                                                                        @(i+"/"+ViewBag.selectedYear)
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (ViewBag.dictInNor!=null)
+                                    {
+                                                                            @if (ViewBag.selectedYear*100+i >= inNor
+                                   && ViewBag.dictInNor.ContainsKey(ViewBag.selectedYear*100+i)
+                                   && i!=ViewBag.minMonth)
+                                        {
+                                            inNor = ViewBag.selectedYear * 100 + i;
+                                        }
+                                                                            <p>@ViewBag.dictInNor[inNor]</p>
+                                    }
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (ViewBag.dictInHea!=null)
+                                    {
+                                                                            @if (ViewBag.selectedYear*100+i >= inHea
+                                   && ViewBag.dictInHea.ContainsKey(ViewBag.selectedYear*100+i)
+                                   && i!=ViewBag.minMonth)
+                                        {
+                                            inHea = ViewBag.selectedYear * 100 + i;
+                                        }
+                                                                            <p>@ViewBag.dictInHea[inHea]</p>
+                                    }
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (ViewBag.dictInNorFra!=null)
+                                    {
+                                                                            @if (ViewBag.selectedYear*100+i >= inNorFra
+                                   && ViewBag.dictInNorFra.ContainsKey(ViewBag.selectedYear*100+i)
+                                   && i!=ViewBag.minMonth)
+                                        {
+                                            inNorFra = ViewBag.selectedYear * 100 + i;
+                                        }
+                                                                            <p>@ViewBag.dictInNorFra[inNorFra]</p>
+                                    }
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (ViewBag.dictInHeaFra!=null)
+                                    {
+                                                                            @if (ViewBag.selectedYear*100+i >= inHeaFra
+                                   && ViewBag.dictInHeaFra.ContainsKey(ViewBag.selectedYear*100+i)
+                                   && i!=ViewBag.minMonth)
+                                        {
+                                            inHeaFra = ViewBag.selectedYear * 100 + i;
+                                        }
+                                                                            <p>@ViewBag.dictInHeaFra[inHeaFra]</p>
+                                    }
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (ViewBag.dictOutNor!=null)
+                                    {
+                                                                            @if (ViewBag.selectedYear*100+i >= outNor
+                                   && ViewBag.dictOutNor.ContainsKey(ViewBag.selectedYear*100+i)
+                                   && i!=ViewBag.minMonth)
+                                        {
+                                            outNor = ViewBag.selectedYear * 100 + i;
+                                        }
+                                                                            <p>@ViewBag.dictOutNor[outNor]</p>
+                                    }
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (ViewBag.dictOutHea!=null)
+                                    {
+                                                                            @if (ViewBag.selectedYear*100+i >= outHea
+                                   && ViewBag.dictOutHea.ContainsKey(ViewBag.selectedYear*100+i)
+                                   && i!=ViewBag.minMonth)
+                                        {
+                                            outHea = ViewBag.selectedYear * 100 + i;
+                                        }
+                                                                            <p>@ViewBag.dictOutHea[outHea]</p>
+                                    }
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (ViewBag.dictOutNorFra!=null)
+                                    {
+                                                                            @if (ViewBag.selectedYear*100+i >= outNorFra
+                                   && ViewBag.dictOutNorFra.ContainsKey(ViewBag.selectedYear*100+i)
+                                   && i!=ViewBag.minMonth)
+                                        {
+                                            outNorFra = ViewBag.selectedYear * 100 + i;
+                                        }
+                                                                            <p>@ViewBag.dictOutNorFra[outNorFra]</p>
+                                    }
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (ViewBag.dictOutHeaFra!=null)
+                                    {
+                                                                            @if (ViewBag.selectedYear*100+i >= outHeaFra
+                                   && ViewBag.dictOutHeaFra.ContainsKey(ViewBag.selectedYear*100+i)
+                                   && i!=ViewBag.minMonth)
+                                        {
+                                            outHeaFra = ViewBag.selectedYear * 100 + i;
+                                        }
+                                                                            <p>@ViewBag.dictOutHeaFra[outHeaFra]</p>
+                                    }
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (ViewBag.dictOutPerKM!=null)
+                                    {
+                                                                            @if (ViewBag.selectedYear*100+i >= outPerKM
+                                   && ViewBag.dictOutPerKM.ContainsKey(ViewBag.selectedYear*100+i)
+                                   && i!=ViewBag.minMonth)
+                                        {
+                                            outPerKM = ViewBag.selectedYear * 100 + i;
+                                        }
+                                                                            <p>@ViewBag.dictOutPerKM[outPerKM]</p>
+                                    }
+                                                                    </td>
+                                                                </tr>
+                        }
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<form id="updateForm" asp-controller="Manager" asp-action="UpdateCoop" method="post">
+    <div id="coopAddModal" class="modal">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <div class="" style="text-align: center;">
+                    <h1>Update Cooperator</h1>
+                </div>
+            </div>
+
+            <div class="modal-body-popup">
+                <div class="popup-box">
+                    <input type="hidden" name="id" value="@ViewBag.coop.ID"/>
+                    <div>
+                        <span>Cooperator Name</span>
+                        <input value="@ViewBag.coop.Name" id="coopName" type="text" name="name" class="search-popup">
+                    </div>
+                    <div>
+                        <span>Cooperator Email</span>
+                        <input value="@ViewBag.coop.Email" id="coopEmail" type="text" name="email" class="search-popup" style="margin-left: 2%;">
+
+                    </div>
+                </div>
+
+                <div class="popup-box">
+                    <div>
+                        <span>Cooperator Website</span>
+                        <input value="@ViewBag.coop.Web" id="coopWeb" type="text" name="website" class="search-popup" style="width: 99%;">
+                    </div>
+                    <div>
+                        <span>Cooperator Phone</span>
+                        <input value="@ViewBag.coop.Phone" id="coopPhone" type="text" name="phone" class="search-popup">
+
+                    </div>
+                </div>
+                <div class="detail-painting-image">
+
+                    <div class="img-coop">
+                        <!-- Profile picture image-->
+                        <span>Cooperator Logo</span>
+                        <img id="display-image" class="img-account-profile rounded-circle mb-2" src="@ViewBag.coop.Logo"
+                             alt=""><br>
+                        <input type="hidden" value="" id="logo" name="logo" />
+                        <!-- Profile picture upload button-->
+                        <label class="img-btn" for="upload" type="button" id="fileButton"
+                               title="Upload your image">Choose Logo</label>
+                        <input type="file" id="upload" accept="image/*" onchange="handleImageUpload()" style="display: none;" />
+                    </div>
+                    <div class="status-painting">
+                        <span>Status</span><br>
+                        <div style="display: flex;">
+
+                            <input @(ViewBag.coop.StatusName=="Active" ? "checked" : "")
+                                   value="" type="radio" name="customRadio">
+                            <label id="status-painting">Active</label>
+                            <input @(ViewBag.coop.StatusName!="Active" ? "checked" : "")
+                                   value="" type="radio" name="customRadio">
+                            <label id="status-painting">InActive</label>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <span>Shipping Fee</span>
+                    <div class="shipping-fee">
+                        <div class="in-city" style="width: 110%">
+                            <span>Inside City</span>
+                            <div>
+                                <div>
+                                    <span style="display: block">Normal:</span>
+                                    <input value="@ViewBag.inNor.Price" id="price1" type="number" name="price[]" class="search-popup price" style="width: 40%;">
+                                    <input value="@($"{ViewBag.inNor.StartDate / 100}-{ViewBag.inNor.StartDate % 100:D2}")" name="date[]"
+                                           min="@ViewBag.nextMonth"
+                                           type="month" class="search-popup monthinput" style="width: 55%; float: right" />
+                                </div>
+                                <div>
+                                    <span style="display: block">Heavy:</span>
+                                    <input value="@ViewBag.inHea.Price" id="price2" type="number" name="price[]" class="search-popup price" style="width: 40%;">
+                                    <input value="@($"{ViewBag.inHea.StartDate / 100}-{ViewBag.inHea.StartDate % 100:D2}")"
+                                           min="@ViewBag.nextMonth"
+                                           name="date[]" type="month" class="search-popup monthinput" style="width: 55%; float: right" />
+                                </div>
+                                <div>
+                                    <span style="display: block">Normal fragile:</span>
+                                    <input value="@ViewBag.inNorFra.Price" id="" type="number" name="price[]" class="search-popup price" style="width: 40%;">
+                                    <input value="@($"{ViewBag.inNorFra.StartDate / 100}-{ViewBag.inNorFra.StartDate % 100:D2}")"
+                                           min="@ViewBag.nextMonth"
+                                           name="date[]" type="month" class="search-popup monthinput" style="width: 55%; float: right" />
+                                </div>
+                                <div>
+                                    <span style="display: block">Heavy fragile:</span>
+                                    <input value="@ViewBag.inHeaFra.Price" id="" type="number" name="price[]" class="search-popup price" style="width: 40%;">
+                                    <input value="@($"{ViewBag.inHeaFra.StartDate / 100}-{ViewBag.inHeaFra.StartDate % 100:D2}")"
+                                           min="@ViewBag.nextMonth"
+                                           name="date[]" type="month" class="search-popup monthinput" style="width: 55%; float: right" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="out-city">
+                            <span>Outside City</span>
+                            <div>
+                                <div>
+                                    <span style="display: block">Normal:</span>
+                                    <input value="@ViewBag.outNor.Price" id="" type="number" name="price[]" class="search-popup price" style="width: 40%;">
+                                    <input value="@($"{ViewBag.outNor.StartDate / 100}-{ViewBag.outNor.StartDate % 100:D2}")"
+                                           min="@ViewBag.nextMonth"
+                                           name="date[]" type="month" class="search-popup monthinput" style="width: 55%; float: right" />
+                                </div>
+                                <div>
+                                    <span style="display: block">Heavy:</span>
+                                    <input value="@ViewBag.outHea.Price" id="" type="number" name="price[]" class="search-popup price" style="width: 40%;">
+                                    <input value="@($"{ViewBag.outHea.StartDate / 100}-{ViewBag.outHea.StartDate % 100:D2}")"
+                                           min="@ViewBag.nextMonth"
+                                           name="date[]" type="month" class="search-popup monthinput" style="width: 55%; float: right" />
+                                </div>
+                                <div>
+                                    <span style="display: block">Normal fragile:</span>
+                                    <input value="@ViewBag.outNorFra.Price" id="" type="number" name="price[]" class="search-popup price" style="width: 40%;">
+                                    <input value="@($"{ViewBag.outNorFra.StartDate / 100}-{ViewBag.outNorFra.StartDate % 100:D2}")"
+                                           min="@ViewBag.nextMonth"
+                                           name="date[]" type="month" class="search-popup monthinput" style="width: 55%; float: right" />
+                                </div>
+                                <div>
+                                    <span style="display: block">Heavy fragile:</span>
+                                    <input value="@ViewBag.outHeaFra.Price" id="" type="number" name="price[]" class="search-popup price" style="width: 40%;">
+                                    <input value="@($"{ViewBag.outHeaFra.StartDate / 100}-{ViewBag.outHeaFra.StartDate % 100:D2}")"
+                                           min="@ViewBag.nextMonth"
+                                           name="date[]" type="month" class="search-popup monthinput" style="width: 55%; float: right" />
+                                </div>
+                                <div>
+                                    <span>Fee:</span>
+                                    <input value="@ViewBag.outPerKM.Price" id="" type="number" name="price[]" class="search-popup price" style="width: 30%;">
+                                    <input name="date[]" type="month" class="search-popup monthinput"
+                                           value="@($"{ViewBag.outPerKM.StartDate / 100}-{ViewBag.outPerKM.StartDate % 100:D2}")"
+                                           min="@ViewBag.nextMonth"
+                                           style="width: 50%; float: right;" />
+                                    <span style="margin-top: 2%;">Per:</span>
+                                    <input value="@ViewBag.outPerKM.PerKm" id="km" type="number" name="per" class="search-popup" style="width: 20%;">
+                                    <span>Km</span>
+
+                                </div>
+                                <div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pop-btn">
+                    <div class="add">
+                        <button onclick="submitUpdate();">Update</button>
+                    </div>
+                    <div class="add">
+                        <a class="cancel">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    // Get the modal
+    var modal = document.getElementById("coopAddModal");
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("popup-btn-coopAdd");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+    var btnCancel = document.getElementsByClassName("cancel")[0];
+
+    // When the user clicks the button, open the modal
+    btn.onclick = function () {
+        modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    btnCancel.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    //method to validate data 
+    function submitUpdate() {
+        var array = document.querySelectorAll(".price");
+        var date = document.querySelectorAll(".monthinput");
+        //check price
+        var isEmpty = false;
+        var isNotDivisibleBy1000 = false;
+        var illegalDate = false;
+        array.forEach(function (input) {
+            // Check if the input value is empty
+            if (input.value.trim() === '') {
+                isEmpty = true; // Set the isEmpty flag to true if any input is empty
+            }
+
+            // Check if the input value is not divisible by 1000
+            if (input.value % 1000 !== 0) {
+                isNotDivisibleBy1000 = true;
+            }
+        });
+
+        date.forEach(function (input) {
+            if (input.value.split("-").length != 2) {
+                illegalDate = true;
+            }
+        });
+
+        if (document.getElementById('coopName').value.trim() === '') {
+            alert('Enter coop\'s name please');
+            return false;
+        }
+        else if (document.getElementById('coopEmail').value.trim() === '' |
+            validateEmail() == false) {
+            alert("Enter coop\'s email properly please");
+            return false;
+        }
+        else if (document.getElementById('coopWeb').value.trim() === '') {
+            alert("Enter coop\'s website please");
+            return false;
+        }
+        else if (document.getElementById('coopPhone').value.trim() === ''
+            | !isValidPhoneNumber()) {
+            alert("Enter coop\'s phone number properly please");
+            return false;
+        }
+        else if (document.getElementById('km').value.trim() === '') {
+            alert("Number KM must not empty");
+            return false;
+        }
+        else if (isEmpty) {
+            alert("you cannot let any price empty");
+            return false;
+        }
+        else if (isNotDivisibleBy1000) {
+            alert("All price must be divisible by 1000");
+            return false;
+        }
+        else if (illegalDate) {
+            alert("All startdate must not empty and have month and year");
+            return false;
+        }
+        else {
+            var form = document.getElementById('updateForm');
+            form.submit();
+        }
+        
+    }
+
+    function validateEmail() {
+        const regex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+        return regex.test(document.getElementById('coopEmail').value);
+    }
+
+    function isValidPhoneNumber() {
+        var digitPattern = /^\d+$/;
+        var str = document.getElementById('coopPhone').value;
+        return digitPattern.test(str) && str.length >= 10 && str.length <= 11;
+    }
+
+</script>
+<script>
+    function handleImageUpload() {
+
+        var image = document.getElementById("upload").files[0];
+        var imageInput = document.getElementById('logo');
+
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            document.getElementById("display-image").src = e.target.result;
+            imageInput.value = e.target.result;
+        }
+
+        reader.readAsDataURL(image);
+
+    }
+
+    function submitData() {
+        var form = document.getElementById('dataForm');
+        form.submit();
+    }
+</script>

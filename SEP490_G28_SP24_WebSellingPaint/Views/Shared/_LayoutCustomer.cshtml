@@ -1,0 +1,353 @@
+@inject IHttpContextAccessor context
+@using SEP490_G28_SP24_WebSellingPaint.FunctionCode
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" />
+    <link rel="stylesheet"
+          href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+    <!-- Google Fonts Roboto -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" />
+    <!-- MDB -->
+    <link rel="stylesheet" href="/css/mdb.min.css" />
+    <link rel="stylesheet"
+          href="/lib/bootstrap/bootstrap-5.2.3-dist/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/profile.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body style="background-color: white;">
+    <div class="header">
+        <div class="col-lg-12">
+            <div class="row d-flex" style="font-size: 15px">
+                <div class="col-md-4 pr-4 d-flex">
+                    <div class="icon mr-2 d-flex">
+                        <i class="bi bi-telephone"></i>
+                    </div>
+                    <span class="text">+(84)123456789</span>
+                </div>
+                <div class="col-md-4 pr-4 d-flex topper" style="justify-content:center;">
+                    <div class="icon mr-2 d-flex">
+                        <i class="bi bi-send"></i>
+                    </div>
+                    <span class="text">paintingsellingwebsite@gmail.com</span>
+                </div>
+                <div class="col-md-4 pr-4 d-flex" style="justify-content: flex-end;">
+                    <span class="text">3-5 Business days delivery &amp; Free Returns</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <i class="bi bi-arrow-up-square"
+       style="color: whitesmoke; font-size: 20px"
+       onclick="topFunction()"
+       id="myBtn"
+       title="Go to top"></i>
+
+    <nav id="main-navbar" class="navbar navbar-expand-md navbar-before-scroll shadow-0">
+        <!-- Container wrapper -->
+        <div class="container-fluid">
+            <!-- Toggle button -->
+            <button data-mdb-collapse-init class="navbar-toggler" type="button" data-mdb-toggle="collapse"
+                    data-mdb-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Collapsible wrapper -->
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                    <a class="home d-flex align-items-center ps-3 m-3" asp-controller="Customer" asp-action="Index">
+                        <img src="/Image/WebLogo.png" style="height: 60px;width: 80px;" />
+                    </a>
+                    
+
+                </ul>
+                @{
+                    int[] cart = context.HttpContext.Session.GetComplexData<int[]>("cart");
+                }
+                <ul class="navbar-nav">
+                    <!-- Icons -->
+                    <li class="nav-item">
+                        <a class="home d-flex align-items-center ps-3 m-3 @(ViewBag.ActiveTitle == "home" ? "active" : "" )"
+                           asp-controller="Customer" asp-action="Index">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="shop d-flex align-items-center ps-3 m-3 @(ViewBag.ActiveTitle == "shop" ? "active" : "" )"
+                           asp-controller="Shop" asp-action="Shop">Shop</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class=" d-flex align-items-center ps-3 m-3 @(ViewBag.ActiveTitle == "post" ? "active" : "" )"
+                           asp-controller="Customer" asp-action="Post">Post</a>
+                    </li>
+                    @if (context.HttpContext.Session.GetString("Email") != null)
+                    {
+                        <li class="nav-item">
+                            <a class="profile d-flex align-items-center ps-3 m-3 @(ViewBag.ActiveTitle == "profile" ? "active" : "" )"
+                               asp-controller="Customer" asp-action="Profile">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class=" d-flex align-items-center ps-3 m-3 @(ViewBag.ActiveTitle == "order" ? "active" : "" )"
+                               asp-controller="Customer" asp-action="Order">Order</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class=" d-flex align-items-center ps-3 m-3 "
+                               asp-controller="Login" asp-action="Signout" class="right">Sign out</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="cart d-flex align-items-center ps-3 m-3 @(ViewBag.ActiveTitle == "cart" ? "active" : "" )"
+                               asp-controller="Customer" asp-action="Cart"><i class="bi bi-cart3"></i>(@cart.Length)</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class=" d-flex align-items-center ps-3 m-3 " asp-controller="Login" asp-action="Login">Sign in</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <!-- Collapsible wrapper -->
+
+        </div>
+        <!-- Container wrapper -->
+    </nav>
+
+
+    <div class="slider">
+        <div class="mySlides">
+            <img src="/Image/slider1.jpeg" style="width: 100%; height: 700px" />
+        </div>
+
+        <div class="mySlides">
+            <img src="/Image/slider2.jpg" style="width: 100%; height: 700px" />
+        </div>
+
+        <div class="mySlides">
+            <img src="/Image/Slider 3.jpg" style="width: 100%; height: 700px" />
+        </div>
+
+        <button class="prev" onclick="plusDivs(-1)">
+            &#10094;
+        </button>
+        <button class="nexts" onclick="plusDivs(1)">
+            &#10095;
+        </button>
+    </div>
+
+    @RenderBody()
+
+    <!-- Footer -->
+    <footer class="text-center text-lg-start text-dark"
+            style="background-color: #eceff1">
+        <!-- Section: Social media -->
+        <section class="d-flex justify-content-between p-4 text-white"
+                 style="background-color: #82ae46; font-size: 20px">
+            <!-- Left -->
+            <div class="me-5">
+                <span>Get connected with us on social networks:</span>
+            </div>
+            <!-- Left -->
+            <!-- Right -->
+            <div>
+                <a href="" class="text-white me-4">
+                    <i class="bi bi-facebook"></i>
+                </a>
+                <a href="" class="text-white me-4">
+                    <i class="bi bi-google"></i>
+                </a>
+            </div>
+            <!-- Right -->
+        </section>
+        <!-- Section: Social media -->
+        <!-- Section: Links  -->
+        <section class=""
+                 style="font-size: 20px; justify-content: space-between; margin-left: 3%">
+            <div class="text-center text-md-start mt-5">
+                <!-- Grid row -->
+                <div class="row mt-3">
+                    <!-- Grid column -->
+                    <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+                        <!-- Content -->
+                        <h6 class="text-uppercase fw-bold">Painting Selling Website</h6>
+                        <hr class="mb-4 mt-0 d-inline-block mx-auto"
+                            style="width: 60px; height: 2px" />
+                        <p>
+                            <a href="#!" class="text-dark">About Us</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-dark">Reviews</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-dark">Facebook</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-dark">Google</a>
+                        </p>
+                    </div>
+                    <!-- Grid column -->
+                    <!-- Grid column -->
+                    <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
+                        <!-- Links -->
+                        <h6 class="text-uppercase fw-bold">Products</h6>
+                        <hr class="mb-4 mt-0 d-inline-block mx-auto"
+                            style="width: 60px; background-color: #7c4dff; height: 2px" />
+                        <p>
+                            <a href="#!" class="text-dark">Landscape</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-dark">Still Life</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-dark">Portrait</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-dark">Abstract</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-dark">Animal</a>
+                        </p>
+                    </div>
+                    <!-- Grid column -->
+                    <!-- Grid column -->
+                    <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
+                        <!-- Links -->
+                        <h6 class="text-uppercase fw-bold">Useful links</h6>
+                        <hr class="mb-4 mt-0 d-inline-block mx-auto"
+                            style="width: 60px; background-color: #7c4dff; height: 2px" />
+                        <p>
+                            <a href="#!" class="text-dark">Your Profile</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-dark">Shop</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-dark">Post</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-dark">Cart</a>
+                        </p>
+                        <p>
+                            <a href="#!" class="text-dark">Order</a>
+                        </p>
+                    </div>
+                    <!-- Grid column -->
+                    <!-- Grid column -->
+                    <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
+                        <!-- Links -->
+                        <h6 class="text-uppercase fw-bold">Contact</h6>
+                        <hr class="mb-4 mt-0 d-inline-block mx-auto"
+                            style="width: 60px; background-color: #7c4dff; height: 2px" />
+                        <p><i class="fas fa-home mr-3"></i> Hanoi, Vietnam</p>
+                        <p>
+                            <i class="fas fa-envelope mr-3"></i>
+                            paintingsellingwebsite@gmail.com
+                        </p>
+                        <p><i class="fas fa-phone mr-3"></i> + 01 234 567 88</p>
+                        <p><i class="fas fa-print mr-3"></i> + 01 234 567 89</p>
+                    </div>
+                    <!-- Grid column -->
+                </div>
+                <!-- Grid row -->
+            </div>
+        </section>
+        <!-- Section: Links  -->
+        <!-- Copyright -->
+        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2)">
+            © 2024 Copyright:
+            <a class="text-dark" href="/CustomerDashboard/home.html">Painting Selling Website</a>
+        </div>
+        <!-- Copyright -->
+    </footer>
+    <!-- Footer -->
+    <!-- End of .container -->
+
+    <script>
+
+        //automatic slider
+        var myIndex = 0;
+        carousel();
+
+        function carousel() {
+            var i;
+            var x = document.getElementsByClassName("mySlides");
+            for (i = 0; i < x.length; i++) {
+                x[i].style.display = "none";
+            }
+            myIndex++;
+            if (myIndex > x.length) {
+                myIndex = 1;
+            }
+            x[myIndex - 1].style.display = "block";
+            setTimeout(carousel, 2000); // Change image every 2 seconds
+        }
+
+        //slider chuyển bằng tay
+        var slideIndex = 1;
+        showDivs(slideIndex);
+
+        function plusDivs(n) {
+            showDivs((slideIndex += n));
+        }
+
+        function currentDiv(n) {
+            showDivs((slideIndex = n));
+        }
+
+        function showDivs(n) {
+            var i;
+            var x = document.getElementsByClassName("mySlides");
+            var dots = document.getElementsByClassName("demo");
+            if (n > x.length) {
+                slideIndex = 1;
+            }
+            if (n < 1) {
+                slideIndex = x.length;
+            }
+            for (i = 0; i < x.length; i++) {
+                x[i].style.display = "none";
+            }
+            for (i = 0; i < dots.length; i++) {
+                dots[i].className = dots[i].className.replace(" w3-white", "");
+            }
+            x[slideIndex - 1].style.display = "block";
+            dots[slideIndex - 1].className += " w3-white";
+        }
+    </script>
+    <script>
+        window.onscroll = function () { myFunction() };
+
+        var navbar = document.getElementById("main-navbar");
+        var mybutton = document.getElementById("myBtn");
+        var sticky = navbar.offsetTop;
+
+        function myFunction() {
+            if (window.pageYOffset >= sticky) {
+                navbar.classList.add("sticky")
+                mybutton.style.display = "block";
+            } else {
+                navbar.classList.remove("sticky");
+                mybutton.style.display = "none";
+
+            }
+        }
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+    </script>
+
+    <script type="text/javascript" src="/js/mdb.umd.min.js"></script>
+</body>
+
+
+</html>

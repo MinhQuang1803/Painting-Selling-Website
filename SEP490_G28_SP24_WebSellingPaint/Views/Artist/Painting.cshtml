@@ -1,0 +1,486 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutArtist";
+}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css"></script>
+
+<script>
+    $(document).ready(function () {
+
+        // Cấu hình các nhãn phân trang
+        $('#order-table').dataTable({
+            "language": {
+                "sProcessing": "Processing...",
+                "sLengthMenu": "Display _MENU_ entries",
+                "sZeroRecords": "No suitable result",
+                "sInfo": "Displaying _START_ to _END_ of _TOTAL_ entries",
+                "sInfoEmpty": "Viewing 0 to 0 of 0 entries",
+                "sInfoFiltered": "(Filtered from _MAX_ entries)",
+                "sInfoPostFix": "",
+                "sSearch": "Search:",
+                "sUrl": "",
+                "oPaginate": {
+                    "sFirst": "First",
+                    "sPrevious": "Previous",
+                    "sNext": "Next",
+                    "sLast": "Last"
+                }
+            },
+            "processing": true, // tiền xử lý trước
+            "aLengthMenu": [[5, 10, 20, 50], [5, 10, 20, 50]], // danh sách số trang trên 1 lần hiển thị bảng
+        });
+
+    });
+</script>
+<script>
+
+    var id = 0;
+    function openFileDialog() {
+        id++;
+        document.getElementById("files").click();
+    }
+
+    window.onload = function () {
+        // Check File API support
+        var filesInput = document.getElementById("files");
+        filesInput.addEventListener("change", function (event) {
+            var files = event.target.files; // FileList object
+            var output = document.getElementById("result");
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                // Only process image files
+                if (!file.type.match('image')) {
+                    continue;
+                }
+
+                var picReader = new FileReader();
+                picReader.addEventListener("load", function (event) {
+                    var picFile = event.target;
+                    var div = document.createElement("div");
+                    div.classList.add('image-container');
+                    var currentId = id++; // Generate unique ID
+                    div.id = "image-container-" + currentId; // Set unique ID
+                    div.innerHTML = "<span id=\"remove-" + currentId + "\" onclick=\"removeFunction(\'" + "image-container-" + currentId + "\')\">✕</span>" +
+                        "<br>" +
+                        "<img class='thumbnail' src='" + picFile.result + "' title='" + picFile.name + "'/>";
+                    output.insertBefore(div, null);
+                });
+
+                // Read the image
+                picReader.readAsDataURL(file);
+            }
+        });
+
+        // Add an event listener to the file input for clearing
+        filesInput.addEventListener("click", function () {
+            this.value = null; // Clear the selected file
+        });
+    }
+
+
+    function removeFunction(idRemove) {
+        var container = document.getElementById('result');
+        var element = document.getElementById(idRemove);
+        if (element && container) {
+            // Remove the element from its parent container
+            container.removeChild(element);
+        }
+    }
+
+
+    function submitForm() {
+        var form = document.getElementById('filterform');
+        var action = document.getElementById('action');
+        var searchbox = document.getElementById('searchbox');
+        var minPrice = document.getElementById('minPrice');
+        var maxPrice = document.getElementById('maxPrice');
+        var minDis = document.getElementById('minDis');
+        var maxDis = document.getElementById('maxDis');
+        if (searchbox.value === '') {
+            searchbox.value = '';
+        }
+        if (minPrice.value === '') {
+            minPrice.value = 0;
+        }
+        if (maxPrice.value === '') {
+            maxPrice.value = 99999999;
+        }
+        if (minDis.value === '') {
+            minDis.value = 0;
+        }
+        if (maxDis.value === '') {
+            maxDis.value = 99;
+        }
+        if (maxPrice.value <= minPrice.value) {
+            alert("Min price must smaller than max price");
+            return false;
+        }
+        else if (maxDis.value <= minDis.value) {
+            alert("Min discount must smaller than max discount");
+            return false;
+        }
+        form.submit();
+    }
+
+    //method to valid painting data
+    function checkValidData() {
+        var name = document.getElementById('name');
+        var price = document.getElementById('price');
+        var height = document.getElementById('height');
+        var width = document.getElementById('width');
+        var description = document.getElementById('description');
+        var discount = document.getElementById('discount');
+        var quantity = document.getElementById('quantity');
+        var imageContainers = document.querySelectorAll('.image-container');
+        var categoryCheckboxes = document.querySelectorAll('.category');
+        var startDate = document.getElementById('startDate');
+        var endDate = document.getElementById('endDate');
+        var anyChecked = false;
+        categoryCheckboxes.forEach(function (checkbox) {
+            // Check if the checkbox is checked
+            if (checkbox.checked) {
+                // Set the flag to true if at least one checkbox is checked
+                anyChecked = true;
+                // Exit the loop early if a checked checkbox is found
+                return;
+            }
+        });
+
+        if (name.value.trim() == '') {
+            alert("Please give your painting a name");
+            return false;
+        }
+        else if (price.value <= 0) {
+            alert("Price must greater than 0");
+            return false;
+        }
+        else if (height.value <= 0 | width.value <= 0) {
+            alert("Height and width must greater than 0");
+            return false;
+        }
+        else if (description.value == '') {
+            alert("Please give your painting a description");
+            return false;
+        }
+        else if (quantity.value <= 0) {
+            alert("Please give it a quantity and quantity must greater than 0");
+            return false;
+        }
+        else if (discount.value == '') {
+            alert("Please give a discount number");
+            return false;
+        }
+        else if (discount.value < 0 | discount.value > 99) {
+            alert("Discount only from 0-99");
+            return false;
+        }
+        else if (discount.value > 0 && (endDate.value <= startDate.value)) {
+            alert("Please set a proper date time for your discount");
+            return false;
+        }
+        else if (imageContainers.length == 0) {
+            alert("You need to choose pictures of your painting");
+            return false;
+        }
+        else if (anyChecked == false) {
+            alert("You need to choose at least one category for your painting");
+            return false;
+        }
+        else {
+            var result = confirm("You sure you wanna sell this painting? You can check again");
+            if (result) {
+                var form = document.getElementById('createForm');
+                getImageData();
+                form.submit();
+                alert("Create painting successfully");
+            }
+            else {
+                return false;
+            }
+        }
+
+    }
+
+    function getImageData() {
+        var output = document.getElementById("result");
+        var form = document.getElementById('createForm');
+
+        // Select all the image tags inside the output tag
+        var images = output.querySelectorAll("img");
+
+        // Create an array to store src values
+        var srcArray = [];
+
+        // Loop through each image tag to extract src attribute
+        images.forEach(function (image) {
+            var src = image.getAttribute("src");
+            srcArray.push(src);
+        });
+        srcArray.forEach(function (src) {
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "imageData";
+            input.value = src;
+            form.appendChild(input);
+        });
+    }
+</script>
+<main>
+
+    <div class="page-header add">
+        <h1>Your Painting</h1>
+        <button id="popup-btn">Create Painting</button>
+    </div>
+
+    <div class="page-content">
+
+
+        <div class="records">
+            <form id="filterform" asp-controller="Artist" asp-action="Painting" method="post">
+                <div class="record-header">
+                    <div>
+                        <span style="font-size: 25px; font-weight:bold;">Filter</span>
+                    </div>
+                    <div>
+                        <div class="browse add">
+                            <span>Category</span>
+                            <select name="category" id="">
+                                <option value="0">All</option>
+                                @foreach (var category in ViewBag.CategoryList)
+                                {
+                                    @if (category.CategoryId == ViewBag.category)
+                                    {
+                                        <option selected value="@category.CategoryId">@category.CategoryName</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@category.CategoryId">@category.CategoryName</option>
+                                    }
+                                }
+                            </select>
+                            <span>Discount (%)</span>
+                            <div class="d-flex">
+                                <input type="number" min="0" max="99" value="@ViewBag.minDis" name="minDis" id="minDis">
+                                <span style="padding: 2%">To</span>
+                                <input min="1" max="100" type="number" value="@ViewBag.maxDis" name="maxDis" id="maxDis">
+                            </div>
+                        </div>
+                        <div class="add browse">
+
+                            <span>Status</span>
+                            <select name="status" id="" style="margin-left: 3%">
+                                <option value="0">All</option>
+                                @foreach (var status in ViewBag.StatusList)
+                                {
+                                    @if (status.StatusId == ViewBag.status)
+                                    {
+                                        <option selected value="@status.StatusId">@status.StatusName</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@status.StatusId">@status.StatusName</option>
+                                    }
+                                }
+                            </select>
+                            <span style="margin-left: 6%">Price (VND)</span>
+                            <div class="d-flex" style="margin-left: 2%">
+                                <input type="number" min="0" max="99999998" value="@ViewBag.minPrice" name="minPrice" id="minPrice">
+                                <span style="padding: 2%">To</span>
+                                <input type="number" min="1" max="99999999" value="@ViewBag.maxPrice" name="maxPrice" id="maxPrice">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="add">
+                        <button style="margin-right: 1rem;" onclick="submitForm();">Filter</button>
+                        <a href="../ManagePainting" style="text-decoration: none" class="clear-artist">
+                            Clear
+                        </a>
+                    </div>
+
+                </div>
+            </form>
+            <div class="table-responsive">
+                <table width="100%" id="order-table" class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th><span class="las la-sort"></span> Painting Name</th>
+                            <th><span class="las la-sort"></span> Painting Discount</th>
+                            <th><span class="las la-sort"></span> Price</th>
+                            <th><span class="las la-sort"></span> Price After Using Discount</th>
+                            <th><span class="las la-sort"></span> Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.PaintingList != null)
+                        {
+                            int num = 1;
+                            @foreach (var painting in ViewBag.PaintingList)
+                            {
+                                <tr>
+                                    <td>@(num++)</td>
+                                    <td>
+                                        @painting.Painting.Name
+                                    </td>
+                                    <td>
+                                        @(painting.Discount + "%")
+                                    </td>
+                                    <td>
+                                        @(painting.Painting.Price)VND
+                                    </td>
+                                    <td>
+                                        @(painting.Painting.Price - (painting.Painting.Price * painting.Discount / 100))VND
+                                    </td>
+                                    <td>
+                                        <a href="../PaintingDetailArtist?id=@painting.Painting.PaintingId">Detail</a>
+                                    </td>
+                                </tr>
+                            }
+
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<form id="createForm" asp-controller="Artist" asp-action="CreatePainting" method="post">
+    <div id="myModal" class="modal">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <div class="" style="text-align: center;">
+                    <h1>Create Painting</h1>
+                </div>
+            </div>
+            <div class="modal-body-popup">
+                <span>Paining Name</span>
+                <input id="name" type="text" name="name" class="search-popup">
+
+                <div>
+                    <span>Is Fragile</span>&emsp;&emsp;
+                    <input class="category" type="checkbox" id="fragile" name="fragile" value="1" unchecked-value="0">
+                    <label for="fragile">Fragile</label><br>
+                </div>
+
+                <div class="popup-box">
+                    <div>
+                        <span>Price (VND)</span>
+                        <input required id="price" name="price" type="number" class="">
+                    </div>
+                    <div style="margin-left: 5%;">
+                        <span>Height(cm)</span>
+                        <input required id="height" name="height" type="number" class="">
+                    </div>
+                    <div style="margin-left: 5%;">
+                        <span>Width(cm)</span>
+                        <input required id="width" name="width" type="number" class="">
+                    </div>
+                </div>
+                <div style="width: 100%;">
+                    <span>Description</span><br>
+                    <textarea name="description" id="description" rows="4" style="width: 100%;" placeholder="Describe your painting..."></textarea>
+                </div>
+                <div class="pop-discount">
+                    <div>
+                        <span>Quantity</span><br>
+                        <input name="quantity" required id="quantity" type="number" class="" style="height:2rem; width: 80%">
+                    </div>
+                    <div>
+                        <span>Discount</span><br>
+                        <input value="0" name="discount" required id="discount" type="number" class="" style="width: 80%;" max="99">
+                    </div>
+
+                    <div>
+                        <span>Discount Time</span><br>
+                        <div style="display:flex">
+                            <input required type="date" id="startDate" name="startDate" style="width: 45%;">
+                            <span style="padding: 2%">To</span>
+                            <input required type="date" id="endDate" name="endDate" style="width: 45%;">
+                        </div>
+                    </div>
+                </div>
+                <div class="detail-painting-image">
+
+                    <div class="field">
+                        <div class="add">
+                            <button onclick="openFileDialog();">Add Image</button>
+                        </div>
+                        <input required type="file" id="files" accept="image/*" name="files" multiple style="display: none;" />
+                        <output id='result' name="image" />
+                    </div>
+
+                </div>
+                <div>
+                    <span>Category</span>
+                </div>
+                <div class="pop-cate">
+                    @foreach (var category in ViewBag.CategoryList)
+                    {
+                        <div id="cbgrid" class="pop-cate-element">
+                            <input id="@category.CategoryId" class="category" name="category" value="@category.CategoryId" type="checkbox">
+                            <label for="@category.CategoryId">@category.CategoryName</label>
+                        </div>
+                    }
+                </div>
+
+                <div class="pop-btn">
+                    <div class="add">
+                        <button onclick="checkValidData();return false;">Create</button>
+                    </div>
+                    <div class="add">
+                        <button class="cancel">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    // Get the modal
+    var modal = document.getElementById("myModal");
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("popup-btn");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+    var btnCancel = document.getElementsByClassName("cancel")[0];
+
+    // When the user clicks the button, open the modal
+    btn.onclick = function () {
+        modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    btnCancel.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
+<script>
+
+</script>

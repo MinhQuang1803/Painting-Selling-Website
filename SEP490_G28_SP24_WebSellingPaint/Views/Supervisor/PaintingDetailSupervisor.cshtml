@@ -1,0 +1,123 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutSupervisor";
+}
+<script>
+    function censorPainting(act) {
+        var action = document.getElementById('actionCensor');
+        action.value = act;
+        if (confirm("Do you want to change status of this painting to " + act + "?")) {
+            var form = document.getElementById('censorPainting');
+            form.submit();
+        }
+        else {
+            return false;
+        }
+    }
+</script>
+<main>
+
+    <div class="page-header add">
+        <h1>Painting Detail</h1>
+        <div>
+            <a class="back" href="PaintingManagement" style="text-decoration: none">Back</a>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <div class="modal-body">
+            <div class="leaderboard" style="width: 80%">
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Painting Name</span>
+                        <span class="leaderboard__value">@ViewBag.painting.Name</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Price</span>
+                        <span class="leaderboard__value">@ViewBag.painting.Price</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Height(cm)</span>
+                        <span class="leaderboard__value">@ViewBag.painting.Height</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Width(cm)</span>
+                        <span class="leaderboard__value">@ViewBag.painting.Width</span>
+                    </div>
+                </div>
+            </div>
+            <div class="leaderboard" style="width: 80%; margin-left: -20%">
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Status</span>
+                        <span class="leaderboard__value">@ViewBag.painting.StatusName</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Publish Date</span>
+                        <span class="leaderboard__value">@ViewBag.painting.Date</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Painting Quantity</span>
+                        <span class="leaderboard__value">@ViewBag.painting.Quantity</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Discount</span>
+                        <span class="leaderboard__value">@ViewBag.painting.Discount</span>
+                    </div>
+                </div>
+            </div>
+            <div class="leaderboard" style="margin-left: -40%">
+                <div class="leaderboard__profiles" style="justify-content: center">
+                    <div class="detail-painting-btn">
+                        @if (ViewBag.painting.StatusName == "Waiting" | ViewBag.painting.StatusName == "Inactive")
+                        {
+                            <div class="add">
+                                <button onclick="censorPainting('enable');return false;">Enable</button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="add">
+                                <button onclick="censorPainting('disable'); return false;">Disable</button>
+                            </div>
+                        }
+                        <form id="censorPainting" asp-controller="Supervisor" asp-action="CensorPainting" method="post">
+                            <input type="hidden" name="id" value="@ViewBag.painting.ID"/>
+                            <input type="hidden" name="action" value="" id="actionCensor"/>
+                        </form>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles" style="height: 30%;">
+                    <span class="leaderboard__name">Painting Image</span>
+                    <div class="field">
+                        @foreach (var item in ViewBag.image)
+                        {
+                            <img style="height: 80%; width:auto; margin-top: 1%;" src="@item.Url" />
+                        }
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <span class="leaderboard__name">Description</span>
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__value" style="text-align: center;width: 500%;">@ViewBag.painting.Description</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</main>

@@ -1,0 +1,262 @@
+﻿@{
+    Layout = "_LayoutAdmin";
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css"></script>
+
+<script>
+    $(document).ready(function () {
+
+        // Cấu hình các nhãn phân trang
+        $('#order-table').dataTable({
+            "language": {
+                "sProcessing": "Processing...",
+                "sLengthMenu": "Display _MENU_ entries",
+                "sZeroRecords": "No suitable result",
+                "sInfo": "Displaying _START_ to _END_ of _TOTAL_ entries",
+                "sInfoEmpty": "Viewing 0 to 0 of 0 entries",
+                "sInfoFiltered": "(Filtered from _MAX_ entries)",
+                "sInfoPostFix": "",
+                "sSearch": "Search:",
+                "sUrl": "",
+                "oPaginate": {
+                    "sFirst": "First",
+                    "sPrevious": "Previous",
+                    "sNext": "Next",
+                    "sLast": "Last"
+                }
+            },
+            "processing": true, // tiền xử lý trước
+            "aLengthMenu": [[5, 10, 20, 50], [5, 10, 20, 50]], // danh sách số trang trên 1 lần hiển thị bảng
+        });
+
+    });
+</script>
+<main>
+    <div class="page-content">
+        <div class="records">
+            <form id="filterPro" asp-controller="Admin" asp-action="PromotionAdmin" method="post">
+                <div class="record-header">
+                    <span style="font-size: 25px; font-weight:bold;">Filter</span>
+                    <div style="width: 60%;">
+                        <div class="browse add" style="justify-content: space-between">
+                            <div class="d-flex">
+                                <span>Active Date</span><br>
+                                <div style="display:flex">
+                                    <input required type="date" value="@ViewBag.startDate" id="startDate" name="activeFrom" style="width: 45%;">
+                                    <span style="padding: 2%">To</span>
+                                    <input required type="date" value="@ViewBag.endDate" id="endDate" name="activeTo" style="width: 45%;">
+                                </div>
+                            </div>
+                            <div class="d-flex">
+                                <span>Reduce Value</span>
+                                <div style="display:flex">
+                                    <input type="number" value="@ViewBag.minReduce" name="reduceFrom" id="minDiscount">
+                                    <span style="padding: 2%">To</span>
+                                    <input type="number" value="@ViewBag.maxReduce" name="reduceTo" id="maxDiscount">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="add filter" style="justify-content: space-evenly">
+                            <div>
+                                <span>Status</span>
+                                <select name="status" id="">
+                                    <option value="0">All</option>
+                                    @foreach (var status in ViewBag.statusList)
+                                    {
+                                        @if (status.ID == ViewBag.status)
+                                        {
+                                            <option selected value="@status.ID">@status.Name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@status.ID">@status.Name</option>
+                                        }
+
+                                    }
+                                </select>
+                            </div>
+                            <div class="d-flex">
+                                <span>Min Order Value</span>
+                                <div style="display:flex">
+                                    <input type="number" value="@ViewBag.minOrderPrice" name="minOrderPrice" id="minOrderPrice">
+                                    <span style="padding: 2%">To</span>
+                                    <input type="number" value="@ViewBag.maxOrderPrice" name="maxOrderPrice" id="maxOrderPrice">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="add">
+                        <button onclick="submitFilterPro(); return false;" style="margin-right: 1rem;">Filter</button>
+                        <a href="../PromotionAdmin" style="text-decoration: none" class="clear-artist">
+                            Clear
+                        </a>
+                    </div>
+
+                </div>
+            </form>
+            <div>
+                <table width="100%" id="order-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th><span class="las la-sort"></span> Promotion Name</th>
+                            <th><span class="las la-sort"></span> Start Date</th>
+                            <th><span class="las la-sort"></span> End Date</th>
+                            <th><span class="las la-sort"></span> Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.promotionList != null)
+                        {
+                            int num = 1;
+                            @foreach (var promotion in ViewBag.promotionList)
+                            {
+                                <tr>
+                                    <td>
+                                        @(num++)
+                                    </td>
+                                    <td>
+                                        @promotion.VoucherName
+                                    </td>
+                                    <td>
+                                        @promotion.StartDate
+                                    </td>
+                                    <td>
+                                        @promotion.EndDate
+                                    </td>
+                                    <td>
+                                        <a href="../PromotionDetailAdmin?id=@promotion.VoucherId">Detail</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<form id="createForm" asp-controller="" asp-action="" method="post">
+    <div id="myModal" class="modal">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <div class="" style="text-align: center;">
+                    <h1>Create Promotion</h1>
+                </div>
+            </div>
+            <div class="modal-body-popup">
+                <span>Promotion Code</span>
+                <input id="" type="text" name="" class="search-popup">
+                <span>Promotion Name</span>
+                <input id="" type="text" name="" class="search-popup">
+                <div class="pop-discount">
+                    <div>
+                        <span>Start Date</span><br>
+                        <input required type="date" id="" name="" style="width: 45%;">
+                    </div>
+                    <div>
+                        <span>End Date</span><br>
+                        <input required type="date" id="" name="" style="width: 45%;">
+                    </div>
+                    <div class="img-coop">
+                        <!-- Profile picture image-->
+                        <span>Logo</span>
+                        <img id="display-image" class="img-account-profile rounded-circle mb-2" src="/Image/profile.jpg"
+                             alt=""><br>
+                        <input type="hidden" value="" id="logo" name="logo" />
+                        <!-- Profile picture upload button-->
+                        <label class="img-btn" for="upload" type="button" id="fileButton"
+                               title="Upload your image">Choose Logo</label>
+                        <input type="file" id="upload" accept="image/*" onchange="handleImageUpload()" style="display: none;" />
+                    </div>
+                </div>
+
+                <div class="status-painting">
+                    <span>Status</span><br>
+                    <div style="display: flex;">
+                        <input value="Active" type="radio" name="" checked>
+                        <label id="status-painting">Active</label>
+                        <input value="Inactive" type="radio" name="">
+                        <label id="status-painting">Inactive</label>
+                    </div>
+                </div>
+                <div style="display: flex;">
+                    <div>
+                        <span>Reduce Percentage</span>
+                        <input id="" type="number" name="" class="search-popup">
+                    </div>
+                    <div>
+                        <span>Min Value</span>
+                        <input id="" type="number" name="" class="search-popup">
+                    </div>
+                </div>
+                <div class="pop-btn">
+                    <div class="add">
+                        <button>Create</button>
+                    </div>
+                    <div class="add">
+                        <a class="cancel">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    // Get the modal
+    var modal = document.getElementById("myModal");
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("popup-btn");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+    var btnCancel = document.getElementsByClassName("cancel")[0];
+
+    // When the user clicks the button, open the modal
+    btn.onclick = function () {
+        modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    btnCancel.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    function handleImageUpload() {
+
+        var image = document.getElementById("upload").files[0];
+
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            document.getElementById("display-image").src = e.target.result;
+            document.getElementById('logo').value = e.target.result;
+        }
+
+        reader.readAsDataURL(image);
+
+    }
+</script>
+

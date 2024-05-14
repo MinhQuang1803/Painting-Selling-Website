@@ -1,0 +1,18 @@
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  script:
+  - echo '------------------------------------------BUILD IMAGE------------------------------------------'
+  - docker build -t wsp-img -f SEP490_G28_SP24_WebSellingPaint/Dockerfile .
+  - docker images | grep "wsp-img" | grep -v "latest" | awk '{print $3}' | xargs docker rmi  || true        #xóa tất cả các images ngoại trừ image mới nhất
+  - echo '--------------------------------------------DEPLOY------------------------------------------'
+  - docker stop wsp-be-con  || true
+  - docker run --rm -d --name wsp-be-con -p 5286:5286 wsp-img
+
+  only:
+    - main
+  tags:
+    - linux
+    

@@ -1,0 +1,208 @@
+﻿@{
+    Layout = "_LayoutAdmin";
+}
+
+<main>
+
+
+    <div class="page-header add">
+        <h1>User Management</h1>
+        <button id="popup-btn">Create Account</button>
+    </div>
+
+    <div class="page-content">
+        <div class="records table-responsive">
+            <form id="" asp-controller="Admin" asp-action="UserManagement" method="post">
+                <div class="record-header">
+                    <div class="add filter">
+                        <span>Role</span>
+                        <select name="roleDropdown">
+                            <option value="0">All</option>
+                            @foreach (var role in ViewBag.userRoleList)
+                                @if (ViewBag.roleDropdown != null)
+                                {
+                                    @if (ViewBag.roleDropdown == role.RoleId)
+                                    {
+                                        <option selected value="@role.RoleId">@role.RoleName</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@role.RoleId">@role.RoleName</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option value="@role.RoleId">@role.RoleName</option>
+                                }
+                            }
+                            }
+                        </select>
+                        <span>Status</span>
+                        <select name="accountDropdown">
+                            <option value="0">All</option>
+                            @foreach (var status in ViewBag.accountStatusList)
+                            {
+                                @if (ViewBag.accountDropdown != null)
+                                {
+
+                                    @if (ViewBag.accountDropdown == status.StatusId)
+                                    {
+                                        <option selected value="@status.StatusId">@status.StatusName</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@status.StatusId">@status.StatusName</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option value="@status.StatusId">@status.StatusName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="add">
+                        <button type="submit" style="margin-right: 1rem;">Filter</button>
+                        <a href="/UserManagement" style="text-decoration: none" class="clear-artist">
+                            Clear
+                        </a>
+                    </div>
+                </div>
+            </form>
+            <div class="tableFixHead">
+                <table width="100%">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th><span class="las la-sort"></span> User Name</th>
+                            <th><span class="las la-sort"></span> User Account</th>
+                            <th><span class="las la-sort"></span> User Role</th>
+                            <th><span class="las la-sort"></span> Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.userManagerList != null)
+                        {
+                            int num = 1;
+                            @foreach (var user in ViewBag.userManagerList)
+                            {
+                                <tr>
+                                    <td>
+                                        @(num++)
+                                    </td>
+                                    <td>
+                                        @user.UserName
+                                    </td>
+                                    <td>
+                                        @user.AccountName
+                                    </td>
+                                    <td>
+                                        @user.RoleName
+                                    </td>
+                                    <form method="post" asp-controller="Admin" asp-action="UserManagementAction">
+                                        @if (user.statusName == "Enable")
+                                        {
+                                        <td>
+                                            <button style="border: none; padding: 0; background:none;
+                                          text-decoration:underline;" type="submit" name="adminAction" value="@user.AccountID">
+                                                Block
+                                            </button>
+                                        </td>
+                                        }
+                                        else if (user.statusName == "Disable")
+                                        {
+                                        <td>
+                                            <button style="border: none; padding: 0; background:none;
+                                           text-decoration:underline;" type="submit" name="adminAction" value="@user.AccountID">
+                                                Unblock
+                                            </button>
+                                        </td>
+                                        }
+                                    </form>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+<form id="" asp-controller="Admin" asp-action="CreateSupervisorAccount" method="post">
+    <div id="myModal" class="modal">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <div class="" style="text-align: center;">
+                    <h1>Create New Supervisor Account</h1>
+                </div>
+            </div>
+            <div class="modal-body-popup">
+
+                <span>Supervisor Email</span>
+                <input id="email" type="text" name="supervisorEmail" required pattern="\S.*" title="Please enter a non-empty value"
+                       class="search-popup">
+                <p style="color: red">@ViewBag.nameAlert</p>
+                <span>Supervisor Default Password</span>
+                <input type="text" class="search-popup" placeholder="laptrinhvien" readonly>
+                <p style="color: red"></p>
+
+                <span>Supervisor Name</span>
+                <input id="name" type="text" name="supervisorName" required pattern="\S.*" title="Please enter a non-empty value"
+                       class="search-popup">
+                <p style="color: red">@ViewBag.emailAlert</p>
+                <div>
+                    <span>Gender</span><br>
+                    <div class="d-flex">
+                        <input class="category" type="radio" id="fragile" name="gender" value="male" checked>
+                        <label for="fragile">Male</label>
+                        <input style="margin-left:2%" class="category" type="radio" id="fragile" name="gender" value="female">
+                        <label for="fragile">Female</label><br>
+                    </div>
+                </div>
+                <div class="add" style="justify-content: space-around">
+                    <button type="submit">Create</button>
+                    <button class="cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    // Get the modal
+    var modal = document.getElementById("myModal");
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("popup-btn");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+    var btnCancel = document.getElementsByClassName("cancel")[0];
+
+    // When the user clicks the button, open the modal
+    btn.onclick = function () {
+        modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    btnCancel.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
+
+
+

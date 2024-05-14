@@ -1,0 +1,108 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutAdmin";
+}
+
+<main>
+
+    <div class="page-header add">
+        <h1>Promotion Detail</h1>
+        <div>
+            <a class="back" href="../PromotionAdmin">Back</a>
+        </div>
+    </div>
+    <div class="page-content">
+        <div class="promotion-detail">
+            <div class="leaderboard">
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Promotion Code</span>
+                        <span class="leaderboard__value">@ViewBag.promotion.VoucherCode</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Percentage</span>
+                        <span class="leaderboard__value">@(ViewBag.promotion.Percentage + "%")</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Min Value</span>
+                        <span class="leaderboard__value">@ViewBag.promotion.MinOrderValue</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Logo</span>
+                        <span class="leaderboard__value">
+                            <img id="display-image" class="img-account-profile rounded-circle mb-2" src="@ViewBag.promotion.Logo"
+                                 alt=""><br>
+                            <input type="hidden" value="" id="logo" name="logo" />
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="leaderboard">
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Promotion Name</span>
+                        <span class="leaderboard__value">@ViewBag.promotion.VoucherName</span>
+
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Start Date</span>
+                        <span class="leaderboard__value">@ViewBag.promotion.StartDate</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">End Date</span>
+                        <span class="leaderboard__value">@ViewBag.promotion.EndDate</span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="leaderboard__profile">
+                        <span class="leaderboard__name">Status</span>
+                        <span class="leaderboard__value">
+
+                            <input value="" type="radio" name="customRadio"
+                            @(ViewBag.promotion.StatusName == "Active" ? "checked" : "")>
+                            <label id="">Active</label>
+                            <input value="" type="radio" name="customRadio"
+                            @(ViewBag.promotion.StatusName != "Active" ? "checked" : "")>
+                            <label id="">InActive</label>
+                        </span>
+                    </div>
+                </div>
+                <div class="leaderboard__profiles">
+                    <div class="detail-painting-btn" style="justify-content: center;">
+                        <div class="add">
+                            <button id="popup-btn-2">Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    function handleImageUpload() {
+
+        var image = document.getElementById("upload").files[0];
+
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            document.getElementById("display-image").src = e.target.result;
+            document.getElementById('logo').value = e.target.result;
+        }
+
+        reader.readAsDataURL(image);
+
+    }
+</script>

@@ -1,0 +1,77 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutSupervisor";
+}
+<main>
+
+    <div class="page-header add">
+        <h1>Post Management</h1>
+    </div>
+
+    <div class="page-content">
+        <div class="records table-responsive">
+            <form id="filterform">
+                <div class="record-header">
+
+                    <div class="browse add">
+                        <span>Filter</span>
+                        <input value="" name="searchbox" id="searchbox" type="text" placeholder="Search" class="record-search">
+                        <span>Status</span>
+                        <select name="" id="">
+                            <option value="0">All</option>
+                        </select>
+                        <span style="margin-left: 10%;">Discount Time</span>
+                        <input type="date" value="" id="" name="" style="width: 45%;">
+                        <span>To</span>
+                        <input type="date" value="e" id="" name="" style="width: 45%;">
+                    </div>
+
+                    <div class="add">
+                        <button style="margin-right: 1rem;">Filter</button>
+                        <a href="" style="text-decoration: none" class="btn fs-6 clear-artist">
+                            Clear
+                        </a>
+                    </div>
+
+                </div>
+            </form>
+            <div class="tableFixHead">
+                <table width="100%">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th><span class="las la-sort"></span> Post Title</th>
+                            <th><span class="las la-sort"></span> Post Author</th>
+                            <th><span class="las la-sort"></span> Post Date</th>
+                            <th><span class="las la-sort"></span> Status</th>
+                            <th><span class="las la-sort"></span> Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>
+                                Post Title
+                            </td>
+                            <td>
+                                Post Author
+                            </td>
+                            <td>
+                                Post Date
+                            </td>
+                            <td>
+                                Status
+                            </td>
+                            <td>
+                                <a href="PostDetailSupervisor">Detail</a>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>

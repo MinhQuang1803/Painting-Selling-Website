@@ -1,0 +1,151 @@
+﻿@inject IHttpContextAccessor context
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutLogin";
+}
+<script>
+    function submitAccount(formTag) {
+        var form = document.getElementById(formTag);
+        form.submit();
+    }
+
+    function checkEnter(event) {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            submitAccount('formAccount');
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get the <p> tag
+        var pTag = document.getElementById('success');
+        var goTo = document.getElementById('goto');
+        if (pTag.textContent.trim().length === 3) {
+            var count = 3;
+            var countdownInterval = setInterval(function () {
+                goTo.textContent = "Your artist account is expired, redirect to payment page in " + count;
+
+                count--;
+
+                if (count < 0) {
+                    window.location.href = "/Artist/ReActiveAccountPayment";
+
+                    clearInterval(countdownInterval);
+                }
+            }, 1000);
+        }
+    });
+
+
+
+
+</script>
+
+
+
+<!----------------------- Main Container -------------------------->
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <!----------------------- Login Container -------------------------->
+
+    <div class="row border rounded-5 p-3 bg-white shadow box-area">
+        <!--------------------------- Left Box ----------------------------->
+
+        <div class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box"
+             style="background: white">
+            <div class="featured-image mb-3">
+                <img src="/Image/login.jpg"
+                     class="img-fluid"
+                     style="width: 250px; margin-top: 10px" />
+            </div>
+            <p class="fs-2 text-center"
+               style="
+              font-family: 'Courier New', Courier, monospace;
+              font-weight: 600;
+            ">
+                Painting Selling Website
+            </p>
+            <small class="text-wrap text-center"
+                   style="width: 17rem; font-family: 'Courier New', Courier, monospace">
+                Provide the best service for users
+                <a href="../Home">Visit our Website</a>
+            </small>
+        </div>
+
+        <!-------------------- ------ Right Box ---------------------------->
+
+        <div class="col-md-6 right-box">
+            <div class="row align-items-center">
+                <div class="header-text mb-4 text-wrap text-center"
+                     style="
+                font-family: 'Courier New', Courier, monospace;
+                font-weight: 600;">
+                    <h2>Hello</h2>
+                    <p>Welcome to our website</p>
+                    <p style="color: red">@ViewBag.alert</p>
+                    <p hidden id="success">@ViewBag.success</p>
+                    <p id="goto" style="color: red"></p>
+                </div>
+                <form id="formAccount" method="post" asp-action="Login">
+                    <div class="input-group mb-3">
+                        <input name="email" type="text" value="@ViewBag.email"
+                               class="form-control form-control-lg bg-light fs-6"
+                               placeholder="Email address" />
+                    </div>
+                    <div class="input-group mb-1 input-container">
+                        <input id="repassword-field" name="password" type="password" value="@ViewBag.password"
+                               class="form-control form-control-lg bg-light fs-6"
+                               placeholder="Password" onkeydown="checkEnter(event);" />
+                        <i class="far fa-eye" id="retogglePassword"></i>
+                    </div>
+                    <div class="input-group mb-5 d-flex justify-content-between">
+                        <div class="form-check">
+                            @if (ViewBag.rememberme == "on")
+                            {
+                                <input checked type="checkbox" name="rememberme" class="form-check-input" id="formCheck" />
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="rememberme" class="form-check-input" id="formCheck" />
+                            }
+                            <label for="formCheck" class="form-check-label text-secondary" style="width: 100%"><small>Remember Me</small></label>
+                        </div>
+                        <div class="forgot">
+                            <small><a asp-area="" asp-controller="Login" asp-action="ForgotPassword">Forgot Password?</a></small>
+                        </div>
+                    </div>
+                </form>
+                <div class="input-group mb-3">
+                    <button onclick="submitAccount('formAccount');" class="btn btn-lg btn-primary w-100 fs-6">
+                        <a onclick="return false;" href="#"
+                           class="text-white"
+                           style="text-decoration: none">Login</a>
+                    </button>
+                </div>
+                <div class="row">
+                    <small>Don't have account? </small>
+                    <small><a asp-area="" asp-controller="Login" asp-action="SignUp">Sign Up</a>&emsp;or&emsp;<a asp-area="" asp-controller="Login" asp-action="SignUpAsArtist">Sign Up As An Artist</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const reicon = document.getElementById('retogglePassword');
+    let Confirmpassword = document.getElementById('repassword-field');
+    reicon.addEventListener('click', function () {
+        if (Confirmpassword.type === "password") {
+            Confirmpassword.type = "text";
+            reicon.classList.add("fa-eye-slash");
+            reicon.classList.remove("fa-eye");
+        }
+        else {
+            Confirmpassword.type = "password";
+            reicon.classList.add("fa-eye");
+            reicon.classList.remove("fa-eye-slash");
+        }
+    });
+</script>

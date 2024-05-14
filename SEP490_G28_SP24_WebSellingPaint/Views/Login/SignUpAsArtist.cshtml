@@ -1,0 +1,268 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutLogin";
+}
+
+
+<script>
+    function goToLogin() {
+        window.location.href = "/Login/Login";
+    }
+
+    //function to submit form sign up
+    function submitForm() {
+        var form = document.getElementById('formAccount');
+        var name = document.getElementById('name');
+        var email = document.getElementById('email');
+        if (name.value === '') {
+            name.value = '';
+        }
+        if (email.value === '') {
+            email.value = '';
+        }
+        form.submit();
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get the <p> tag
+        var pTag = document.getElementById('success');
+        var goTo = document.getElementById('goto');
+        if (pTag && pTag.textContent.trim().length > 0) {
+            var count = 3;
+            var countdownInterval = setInterval(function () {
+                goTo.textContent = "You will go to payment page to active your account in " + count;
+
+                count--;
+
+                if (count < 0) {
+                    window.location.href = "Login";
+
+                    clearInterval(countdownInterval);
+                }
+            }, 1000);
+        }
+    });
+</script>
+<!----------------------- Main Container -------------------------->
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <!----------------------- Login Container -------------------------->
+
+    <div class="row border rounded-5 p-3 bg-white shadow box-area">
+        <!--------------------------- Left Box ----------------------------->
+        <div>
+            <div class="row align-items-center">
+                <div class="header-text mb-4 text-wrap text-center"
+                     style="
+                font-family: 'Courier New', Courier, monospace;
+                font-weight: 600;
+              ">
+                    <h2>SIGN UP</h2>
+                </div>
+                <form id="formAccount" method="post" asp-controller="Login" asp-action="SignUpAsArtist">
+                    <p style="color: red">@ViewBag.namealert</p>
+                    <p id="success" style="color: green">@ViewBag.success</p>
+                    <p id="goto" style="color: green"></p>
+                    <div class="input-group mb-3">
+                        <input id="name" type="text" value="@ViewBag.SignupName"
+                               class="form-control form-control-lg bg-light fs-6"
+                               placeholder="Your Name" name="UserName" />
+                    </div>
+                    <p style="color: red">@ViewBag.emailalert</p>
+                    <div class="input-group mb-3">
+                        <input id="email" type="text" value="@ViewBag.SignupEmail"
+                               class="form-control form-control-lg bg-light fs-6"
+                               placeholder="Your Email" name="UserEmail" />
+                    </div>
+                    <p style="color: red">@ViewBag.passwordalert</p>
+                    <div class="input-group mb-3 input-container">
+                        <input id="password-field" type="password" value="@ViewBag.password"
+                               class="form-control form-control-lg bg-light fs-6"
+                               placeholder="Password" name="UserPassword" />
+                        <i class="far fa-eye" id="togglePassword"></i>
+
+                    </div>
+                    <div class="input-group mb-3 input-container">
+                        <input id="repassword-field" type="password" value="@ViewBag.password"
+                               class="form-control form-control-lg bg-light fs-6"
+                               placeholder="Confirm Password" name="UserConfirmPassword" />
+                        <i class="far fa-eye" id="retogglePassword"></i>
+                    </div>
+                    <p style="color: red">@ViewBag.phonealert</p>
+                    <div class="input-group mb-3">
+                        <input id="phone" type="text"
+                               value="@ViewBag.SignupPhone"
+                               class="form-control form-control-lg bg-light fs-6"
+                               placeholder="Your Phone Number" name="UserPhone" />
+                    </div>
+                    <p style="color: red">@ViewBag.addressalert</p>
+                    <div class="input-group mb-3">
+                        <select id="city" name="userCity"
+                                class="form-control form-control-lg bg-light fs-6">
+                            <option value="" selected>Select your city</option>
+                        </select>
+                    </div>
+                    <div class="input-group mb-3">
+                        <select id="district" name="userDistrict"
+                                class="form-control form-control-lg bg-light fs-6">
+                            <option value="" selected>Select your district</option>
+                        </select>
+                    </div>
+                    <div class="input-group mb-3">
+                        <select id="ward" name="userWards"
+                                class="form-control form-control-lg bg-light fs-6">
+                            <option value="" selected>Select your wards</option>
+                        </select>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input id="addressDetail" type="text"
+                               class="form-control form-control-lg bg-light fs-6"
+                               placeholder="Your Address" name="UserAddressDetail" />
+                    </div>
+                    <div class="d-flex" style="justify-content: space-between">
+                        <div class="mb-5 d-flex">
+                            <input type="radio" id="male" name="gender"
+                                   value="male" checked="checked" />
+                            <label for="male">Male</label>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <input type="radio" id="female" name="gender" value="female" />
+                            <label for="female">Female</label>
+                        </div>                    
+                        <div style="width: 60%">
+                            <p>Shop Name</p>
+                            <input type="text" name="shopName" style="width: 100%" />
+                            <p style="color: red">@ViewBag.shopNameError</p>
+                        </div>
+                    </div>
+                    <p>Background(optional)</p>
+                    <textarea placeholder="Your Personal Background" rows="4" cols="70" name="artistBackground" value="@ViewBag.artistBackground"></textarea>
+                    <div class="input-group mb-5">
+                        <div class="form-check">
+                            <input type="checkbox" name="term"
+                                   class="form-check-input"
+                                   id="formCheck" />
+                            <label for="formCheck" class="form-check-label text-secondary">
+                                <small>I agree all statement in Terms of services</small>
+                            </label>
+                            <p style="color: red">@ViewBag.termalert</p>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3 d-flex justify-content-between">
+                        <div>
+                            <button class="btn btn-lg btn-primary" onclick="submitForm();">
+                                <a onclick="return false;"
+                                   class="text-white"
+                                   style="text-decoration:none">Register</a>
+                            </button>
+                        </div>
+                        <div>
+                            <a style="text-decoration: none" href="Login" class="btn btn-lg btn-primary">
+                                Login
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script>
+    var citis = document.getElementById("city");
+    var districts = document.getElementById("district");
+    var wards = document.getElementById("ward");
+    var Parameter = {
+        url: "https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json",
+        method: "GET",
+        responseType: "application/json",
+    };
+    var promise = axios(Parameter);
+    promise.then(function (result) {
+        renderCity(result.data);
+    });
+
+    function renderCity(data) {
+        for (const x of data) {
+            var opt = document.createElement("option");
+            opt.value = x.Name;
+            opt.text = x.Name;
+            opt.setAttribute("data-id", x.Id);
+            citis.options.add(opt);
+        }
+        citis.onchange = function () {
+            district.length = 1;
+            ward.length = 1;
+            if (this.options[this.selectedIndex].dataset.id != "") {
+                const result = data.filter(
+                    (n) => n.Id === this.options[this.selectedIndex].dataset.id
+                );
+
+                for (const k of result[0].Districts) {
+                    var opt = document.createElement("option");
+                    opt.value = k.Name;
+                    opt.text = k.Name;
+                    opt.setAttribute("data-id", k.Id);
+                    district.options.add(opt);
+                }
+            }
+        };
+        district.onchange = function () {
+            ward.length = 1;
+            const dataCity = data.filter(
+                (n) => n.Id === citis.options[citis.selectedIndex].dataset.id
+            );
+            if (this.options[this.selectedIndex].dataset.id != "") {
+                const dataWards = dataCity[0].Districts.filter(
+                    (n) => n.Id === this.options[this.selectedIndex].dataset.id
+                )[0].Wards;
+
+                for (const w of dataWards) {
+                    var opt = document.createElement("option");
+                    opt.value = w.Name;
+                    opt.text = w.Name;
+                    opt.setAttribute("data-id", w.Id);
+                    wards.options.add(opt);
+                }
+            }
+        };
+    }
+</script>
+<script>
+    const icon = document.getElementById('togglePassword');
+    let password = document.getElementById('password-field');
+    icon.addEventListener('click', function () {
+        if (password.type === "password") {
+            password.type = "text";
+            Confirmpassword.type = "text";
+            icon.classList.add("fa-eye-slash");
+            icon.classList.remove("fa-eye");
+        }
+        else {
+            password.type = "password";
+            icon.classList.add("fa-eye");
+            icon.classList.remove("fa-eye-slash");
+        }
+    });
+</script>
+
+<script>
+    const reicon = document.getElementById('retogglePassword');
+    let Confirmpassword = document.getElementById('repassword-field');
+    reicon.addEventListener('click', function () {
+        if (Confirmpassword.type === "password") {
+            Confirmpassword.type = "text";
+            reicon.classList.add("fa-eye-slash");
+            reicon.classList.remove("fa-eye");
+        }
+        else {
+            Confirmpassword.type = "password";
+            reicon.classList.add("fa-eye");
+            reicon.classList.remove("fa-eye-slash");
+        }
+    });
+</script>

@@ -1,0 +1,187 @@
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutCustomer";
+}
+<script>
+    window.addEventListener('load', function () {
+        scroll();
+    });
+
+    function scroll() {
+        var load = document.getElementById('load');
+        load.scrollIntoView({ block: 'center' });
+    }
+</script>
+<div style="text-align: center; margin-top: 3%">
+    <h2 style="font-weight: bold;">Order Detail</h2>
+</div>
+<div class="modal-body" style="width: 80%;margin: 3% 10%;">
+    <div class="leaderboard">
+        <div class="leaderboard__profiles">
+            <div class="leaderboard__profile">
+                <span id="load" class="leaderboard__name">Order Note</span>
+                <span class="leaderboard__value">@ViewBag.order.Note</span>
+            </div>
+        </div>
+        <div class="leaderboard__profiles">
+            <div class="leaderboard__profile">
+                <span class="leaderboard__name">Order Date</span>
+                <span class="leaderboard__value">@ViewBag.order.OrderDate</span>
+            </div>
+        </div>
+        <div class="leaderboard__profiles">
+            <div class="leaderboard__profile">
+                <span class="leaderboard__name">Ship Date</span>
+                <span class="leaderboard__value">@ViewBag.order.ShipDate</span>
+            </div>
+        </div>
+        <div class="leaderboard__profiles">
+            <div class="leaderboard__profile">
+                <span class="leaderboard__name">Shipping Unit</span>
+                <span class="leaderboard__value"><a href="@ViewBag.order.Url">@ViewBag.order.ShippingUnit</a></span>
+            </div>
+        </div>
+        <div class="leaderboard__profiles">
+            <div class="leaderboard__profile">
+                <span class="leaderboard__name">Receiver Name</span>
+                <span class="leaderboard__value">@ViewBag.order.ReceiverName</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="leaderboard">
+        <div class="leaderboard__profiles">
+            <div class="leaderboard__profile">
+                <span class="leaderboard__name">Address From</span>
+                <span class="leaderboard__value">@ViewBag.order.AddressFrom</span>
+            </div>
+        </div>
+        <div class="leaderboard__profiles">
+            <div class="leaderboard__profile">
+                <span class="leaderboard__name">Address To</span>
+                <span class="leaderboard__value">@ViewBag.order.AddressTo</span>
+            </div>
+        </div>
+
+        <div class="leaderboard__profiles">
+            <div class="leaderboard__profile">
+                <span class="leaderboard__name">Order Status</span>
+                <span class="leaderboard__value">@ViewBag.order.StatusName</span>
+            </div>
+        </div>
+        <div class="leaderboard__profiles">
+            <div class="leaderboard__profile">
+                <span class="leaderboard__name">Phone Number</span>
+                <span class="leaderboard__value">@ViewBag.order.Phone</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div>
+    <div class="cart-table">
+        <table style="margin-top: 3%">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Product Image</th>
+                    <th>Product Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < ViewBag.orderDetail.Count; i++)
+                {
+                    <tr>
+                        <td style="text-align: right;">@(i + 1)</td>
+                        <td>
+                            <img src="@ViewBag.orderDetail[i].Image" style="height: 6rem;">
+                        </td>
+                        <td>
+                            @ViewBag.orderDetail[i].Name
+                        </td>
+                        <td>
+                            @if (ViewBag.orderDetail[i].Discount > 0)
+                            {
+                                @(ViewBag.orderDetail[i].Price + "(discount " + ViewBag.orderDetail[i].Discount + "%)")
+                            }
+                            else
+                            {
+                                @ViewBag.orderDetail[i].Price
+                            }
+                        </td>
+                        <td style="width: 20%">
+                            @ViewBag.orderDetail[i].Quantity
+                        </td>
+                        <td>
+                            @if (ViewBag.orderDetail[i].Discount > 0)
+                            {
+                                <span style="text-decoration: line-through; text-decoration-color: gray; color: gray" class="">@(ViewBag.orderDetail[i].SumPrice)</span>
+                                <span class="">@(ViewBag.orderDetail[i].DiscountPrice)VND</span>
+                            }
+                            else
+                            {
+                                <span class="">@(ViewBag.orderDetail[i].SumPrice)VND</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+    <div style="text-align: right; margin-right: 10%;">
+        <label>Total Price: @(ViewBag.totalPrice)VND</label><br />
+        <label>Payment Method: @(ViewBag.order.PaymentMethod)</label>
+    </div>
+    <div class="d-flex" style="margin: 2%; justify-content: center">
+        @if (ViewBag.order.StatusName == "Processing")
+        {
+            <a href="#" onclick="cancelOrder();" value="" class="btn btn-primary btn-addtocart white">
+                Cancel Order
+            </a>
+        }
+        <form id="cancelOrder" asp-controller="Customer" asp-action="CancelOrder" method="post">
+            <input type="hidden" name="id" value="@ViewBag.order.ID" />
+        </form>
+        <a href="Order" onclick="" value="" class="btn btn-primary btn-addtocart white">
+            Back To Order
+        </a>
+    </div>
+</div>
+
+
+
+<script>
+    document.querySelector('.quantity-left-minus').addEventListener('click', function () {
+        var quantityInput = document.getElementById('quantity');
+        var currentValue = parseInt(quantityInput.value);
+
+        if (currentValue > 1) {
+            quantityInput.value = currentValue - 1;
+        }
+    });
+
+    document.querySelector('.quantity-right-plus').addEventListener('click', function () {
+        var quantityInput = document.getElementById('quantity');
+        var currentValue = parseInt(quantityInput.value);
+
+        if (currentValue < 1000) {
+            quantityInput.value = currentValue + 1;
+        }
+    });
+
+    //method to cancel order
+    function cancelOrder() {
+        if (confirm('Are you sure you want to cancel this order?')) {
+            var form = document.getElementById('cancelOrder');
+            form.submit();
+        }
+    }
+
+
+</script>

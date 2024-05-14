@@ -1,0 +1,365 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutManager";
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css"></script>
+
+<script>
+    $(document).ready(function () {
+
+        // Cấu hình các nhãn phân trang
+        $('#order-table').dataTable({
+            "language": {
+                "sProcessing": "Processing...",
+                "sLengthMenu": "Display _MENU_ entries",
+                "sZeroRecords": "No suitable result",
+                "sInfo": "Displaying _START_ to _END_ of _TOTAL_ entries",
+                "sInfoEmpty": "Viewing 0 to 0 of 0 entries",
+                "sInfoFiltered": "(Filtered from _MAX_ entries)",
+                "sInfoPostFix": "",
+                "sSearch": "Search:",
+                "sUrl": "",
+                "oPaginate": {
+                    "sFirst": "First",
+                    "sPrevious": "Previous",
+                    "sNext": "Next",
+                    "sLast": "Last"
+                }
+            },
+            "processing": true, // tiền xử lý trước
+            "aLengthMenu": [[5, 10, 20, 50], [5, 10, 20, 50]], // danh sách số trang trên 1 lần hiển thị bảng
+        });
+
+    });
+</script>
+<main>
+
+    <div class="page-header add">
+        <h1>Cooperator Management</h1>
+        <button style="margin-right: 1rem; margin-left: 4%" id="popup-btn-coopAdd">Add Cooperator</button>
+    </div>
+
+    <div class="page-content">
+        <form id="filterform" asp-controller="Manager" asp-action="CooperatorManagement" method="post">
+            <div class="record-header">
+                <div class="browse add" style="width: 40%">
+                    <span style="font-size: 30px; font-weight:bold">Filter</span>
+                    <span>Status</span>
+                    <select name="status" id="" style="width: 15%">
+                        <option value="0">All</option>
+                        @foreach (var status in ViewBag.statusList)
+                        {
+                            @if (status.ID==ViewBag.Status)
+                            {
+                                <option selected value="@status.ID">@status.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@status.ID">@status.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="add">
+                    <button onclick="submitFormCoop();" style="margin-right: 1rem;">Filter</button>
+                    <a href="" style="text-decoration: none;" class="clear-artist">
+                        Clear
+                    </a>
+                </div>
+            </div>
+        </form>
+
+        <div>
+            <table width="100%" id="order-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th><span class="las la-sort"></span> Cooperator Name</th>
+                        <th><span class="las la-sort"></span> Website</th>
+                        <th><span class="las la-sort"></span> Status</th>
+                        <th><span class="las la-sort"></span> Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < ViewBag.coopList.Count; i++)
+                    {
+                        <tr>
+                            <td>@(i+1)</td>
+                            <td style="text-align:left;">
+                                @ViewBag.coopList[i].Name
+                            </td>
+                            <td style="text-align: left;">
+                                <a target="_blank" href="@ViewBag.coopList[i].Web">@ViewBag.coopList[i].Web</a>
+                            </td>
+                            <td>
+                                @ViewBag.coopList[i].StatusName
+                            </td>
+                            <td>
+                                <a href="../CooperatorDetails?id=@ViewBag.coopList[i].ID">Detail</a>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+<form id="createForm" asp-controller="Manager" asp-action="CreateCoop" method="post">
+    <div id="coopAddModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <div class="" style="text-align: center;">
+                    <h1>Add New Cooperator</h1>
+                </div>
+            </div>
+            <div class="modal-body-popup">
+                <div class="popup-box">
+                    <div>
+                        <span>Cooperator Name</span>
+                        <input id="coopName" type="text" name="coopName" class="search-popup">
+                    </div>
+                    <div>
+                        <span>Cooperator Email</span>
+                        <input id="coopEmail" type="text" name="coopEmail" class="search-popup" style="margin-left: 2%;">
+                    </div>
+                </div>
+
+                <div class="popup-box">
+                    <div>
+                        <span>Cooperator Website</span>
+                        <input id="coopWeb" type="text" name="coopWeb" class="search-popup" style="width: 99%;">
+                    </div>
+                    <div>
+                        <span>Cooperator Phone</span>
+                        <input id="coopPhone" type="text" name="coopPhone" class="search-popup">
+
+                    </div>
+                </div>
+                <div class="detail-painting-image">
+
+                    <div class="img-coop">
+                        <!-- Profile picture image-->
+                        <span>Cooperator Logo</span>
+                        <img id="display-image" class="img-account-profile rounded-circle mb-2" src="/Image/profile.jpg"
+                             alt=""><br>
+                        <input type="hidden" value="" id="logo" name="logo" />
+                        <!-- Profile picture upload button-->
+                        <label class="img-btn" for="upload" type="button" id="fileButton"
+                               title="Upload your image">Choose Logo</label>
+                        <input type="file" id="upload" accept="image/*" onchange="handleImageUpload()" style="display: none;" />
+                    </div>
+                    <div class="status-painting">
+                        <span>Status</span><br>
+                        <div style="display: flex;">
+                            <input value="Active" type="radio" name="status" checked>
+                            <label id="status-painting">Active</label>
+                            <input value="Inactive" type="radio" name="status">
+                            <label id="status-painting">Inactive</label>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <span>Shipping Fee</span>
+                    <input id="date" min="@ViewBag.minDate"
+                        name="date" type="month" style="width: 30%; float: right;" />
+                    <div class="shipping-fee">
+                        <div class="in-city" style="width: 90%">
+                            <span>Inside City</span>
+                            <div>
+                                <div>
+                                    <span style="display: block">Normal:</span>
+                                    <input id="price1" type="number" name="price1" class="search-popup price" >
+                                </div>
+                                <div>
+                                    <span style="display: block">Heavy:</span>
+                                    <input id="price2" type="number" name="price2" class="search-popup price" >
+                                </div>
+                                <div>
+                                    <span style="display: block">Normal fragile:</span>
+                                    <input id="" type="number" name="price3" class="search-popup price" >
+                                </div>
+                                <div>
+                                    <span style="display: block">Heavy fragile:</span>
+                                    <input id="" type="number" name="price4" class="search-popup price" >
+                                </div>
+                            </div>
+                        </div>
+                        <div class="out-city">
+                            <span>Outside City</span>
+                            <div>
+                                <div>
+                                    <span style="display: block">Normal:</span>
+                                    <input id="" type="number" name="price5" class="search-popup price" >
+                                </div>
+                                <div>
+                                    <span style="display: block">Heavy:</span>
+                                    <input id="" type="number" name="price6" class="search-popup price" >
+                                </div>
+                                <div>
+                                    <span style="display: block">Normal fragile:</span>
+                                    <input id="" type="number" name="price7" class="search-popup price" >
+                                </div>
+                                <div>
+                                    <span style="display: block">Heavy fragile:</span>
+                                    <input id="" type="number" name="price8" class="search-popup price" >
+                                </div>
+                                <div>
+                                    <span>Fee:</span>
+                                    <input id="" type="number" name="price9" class="search-popup price" style="width: 25%;">
+                                    <span>Per:</span>
+                                    <input id="km" type="number" name="per" class="search-popup" style="width: 23%;">
+                                    <span>Km</span>
+                                    
+                                </div>
+                                <div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pop-btn">
+                    <div class="add">
+                        <button onclick="submitCreateCoop(); return false;">Create</button>
+                    </div>
+                    <div id="cancel" class="add">
+                        <a class="cancel">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    // Get the modal
+    var modal = document.getElementById("coopAddModal");
+
+    // Get the button that opens the modal
+    var btn = document.getElementById("popup-btn-coopAdd");
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+    var btnCancel = document.getElementById('cancel');
+
+    // When the user clicks the button, open the modal
+    btn.onclick = function () {
+        modal.style.display = "block";
+    }
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    btnCancel.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    function handleImageUpload() {
+
+        var image = document.getElementById("upload").files[0];
+
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            document.getElementById("display-image").src = e.target.result;
+            document.getElementById('logo').value = e.target.result;
+        }
+
+        reader.readAsDataURL(image);
+
+    }
+
+    function submitFormCoop() {
+        var form = document.getElementById('filterform');
+        form.submit();
+    }
+
+    //validate data for create cooperator
+    function submitCreateCoop() {
+        var x = document.getElementById("date");
+        var dateinput = x.value;
+        var datepart = dateinput.split('-');
+
+        if (document.getElementById('coopName').value.trim() == '') {
+            alert('Enter coop\'s name please');
+            return false;
+        }
+        else if (document.getElementById('coopEmail').value.trim() == '' |
+            validateEmail() == false) {
+            alert("Enter coop\'s email properly please");
+            return false;
+        }
+        else if (document.getElementById('coopWeb').value.trim() == '') {
+            alert("Enter coop\'s website please");
+            return false;
+        }
+        else if (document.getElementById('coopPhone').value.trim() == ''
+            | !isValidPhoneNumber()) {
+            alert("Enter coop\'s phone number properly please");
+            return false;
+        }
+        else if (datepart.length !== 2) {
+            alert('Please choose start time properly');
+            return false;
+        }
+
+        var prices = document.querySelectorAll(".price");
+        for (i = 0; i < prices.length; i++) {
+            var price = prices[i].value;
+            if (price == 0 | price == '') {
+                alert('Please enter all prices of cooperator');
+                return false;
+            }
+            else if (price%1000!==0) {
+                alert("All prices must in thousand unit");
+                return false;
+            }
+            else if (price<=0){
+                alert("All prices must greater than 0");
+                return false;
+            }
+        }
+
+        if (document.getElementById('km').value == '') {
+            alert("Please give the fee per km a distance(km)");
+            return false;
+        }
+
+        if (confirm('You sure you want to create new cooperator?')) {
+            var createForm = document.getElementById('createForm');
+            createForm.submit();
+        }
+        else return false;
+    }
+
+    function validateEmail() {
+        const regex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+        return regex.test(document.getElementById('coopEmail').value);
+    }
+
+    function isValidPhoneNumber() {
+        var digitPattern = /^\d+$/;
+        var str = document.getElementById('coopPhone').value;
+        return digitPattern.test(str) && str.length >= 10 && str.length <= 11;
+    }
+
+</script>

@@ -1,0 +1,118 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutArtist";
+}
+<script>
+    function markDeliver(id) {
+        if (confirm('Are you sure you want to mark this painting as delivering?')) {
+            var form = document.getElementById(id);
+            form.submit();
+        }
+    }
+
+    function markComplete() {
+        if (confirm('Are you sure you want to mark this order as complete?')) {
+            var form = document.getElementById('markConpeleteAction');
+            form.submit();
+        }
+    }
+
+    function markCancel() {
+        if (confirm('Are you sure you want to cancel this order?')) {
+            var form = document.getElementById('markCancelAction');
+            form.submit();
+        }
+    }
+</script>
+<main>
+
+    <div class="page-header add">
+        <h1>Your Order Detail</h1>
+        <div>
+            <a class="back" href="OrderArtist" style="text-decoration: none">Back</a>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <div class="records table-responsive">
+            <div class="tableFixHead">
+                <table width="100%">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th><span class="las la-sort"></span> Painting Name</th>
+                            <th><span class="las la-sort"></span> Price</th>
+                            <th><span class="las la-sort"></span> Quantity</th>
+                            <th><span class="las la-sort"></span> Total(VND)</th>
+                            <th><span class="las la-sort"></span> Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < ViewBag.details.Count; i++)
+                        {
+                            <tr>
+                                <td>@(i+1)</td>
+                                <td>
+                                    @(ViewBag.details[i].Name)
+                                </td>
+                                <td>
+                                    @if (ViewBag.details[i].Discount > 0)
+                                    {
+                                        <p>@(ViewBag.details[i].Price+"(Discount "+ViewBag.details[i].Discount+")")</p>
+                                    }
+                                    else
+                                    {
+                                        <p>@ViewBag.details[i].Price</p>
+                                    }
+                                </td>
+                                <td>
+                                    @(ViewBag.details[i].Quantity)
+                                </td>
+                                <td>
+                                    @(ViewBag.details[i].Total)VND
+                                </td>
+                                <td>
+                                    @if (ViewBag.details[i].Status=="Processing")
+                                    {
+                                        <a href="#" style="text-decoration: underline;" 
+                                        onclick="markDeliver('@ViewBag.details[i].ID');">Mark as delivering</a>
+                                        <form id="@ViewBag.details[i].ID" asp-controller="Artist"
+                                              asp-action="MarkAsDelivering" method="post">
+                                            <input type="hidden" name="id" value="@ViewBag.details[i].ID"/>
+                                        </form>
+                                    }
+                                    else 
+                                    {
+                                        <p>@ViewBag.details[i].Status</p>
+                                    } 
+                                </td>
+                            </tr>
+                        }                      
+                    </tbody>
+                </table>
+                <div class="add" style="justify-content: flex-end; margin-top: 2%">
+                    @if (ViewBag.orderStatus == "Delivering")
+                    {
+                        <a href="#" style="padding-top: 1%; height: 50px"
+                           onclick="markComplete();" class="clear-artist">Mark as Complete</a>
+                        <a href="#" style="padding-top: 1%; margin-left: 2%; height: 50px"
+                           onclick="markCancel();" class="clear-artist">Cancel Order</a>
+                        <form id="markCancelAction" asp-controller="Artist"
+                              asp-action="MarkOrder" method="post">
+                            <input type="hidden" name="id" value="@ViewBag.orderId" />
+                            <input type="hidden" name="action" value="Cancel" />
+                        </form>
+                        <form id="markConpeleteAction" asp-controller="Artist"
+                              asp-action="MarkOrder" method="post">
+                            <input type="hidden" name="id" value="@ViewBag.orderId" />
+                            <input type="hidden" name="action" value="Complete" />
+                        </form>
+                    }
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</main>

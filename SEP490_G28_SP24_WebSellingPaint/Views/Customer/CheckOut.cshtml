@@ -1,0 +1,529 @@
+﻿@inject IHttpContextAccessor context
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutCustomer";
+}
+<link rel="stylesheet" href="/css/profile.css" />
+
+<div class="row cate-home">
+    <form id="onlineQR" asp-controller="Customer" asp-action="processingOrderPayment" method="post">
+        <nav class="nav nav-borders">
+            <div class="card-header" target="__blank" style="text-shadow: 0 0 3px #FF0000;font-size: 30px;">
+                Billing Detail
+            </div>
+        </nav><br />
+        <div class="col-md-12 mb-4">
+            <div class="col-xl-12">
+                <!-- Profile picture card-->
+                <div id="scroll" class="card-header" style="text-shadow: 0 0 3px;font-size: 20px;">Cart Billing</div>
+                @{
+                    var firstID = ViewBag.detail[0].UserID;
+                    decimal shopTotalPrice = 0;
+                    <div class="card-body text-center bill">
+                        @for (var i = 0; i < ViewBag.detail.Count - 1; i++)
+                        {
+                            shopTotalPrice += ViewBag.detail[i].Price;
+                            <div class="shop-bill">
+                                <div>
+                                    <span>@(ViewBag.detail[i].Name) (from @(ViewBag.detail[i].ShopName)) x @(ViewBag.detail[i].Quantity)</span>
+                                    <label class="price-text" data-price="@(ViewBag.detail[i].Price)">@(ViewBag.detail[i].Price)</label>
+                                </div>
+                                @if (ViewBag.voucherIDList.Contains(firstID) && ViewBag.detail[i + 1].UserID != firstID)
+                                {
+                                    if (ViewBag.detail[i + 1].UserID != firstID)
+                                    {
+                                        <div style="display: flex; justify-content: space-between">
+                                            <div>
+                                                <p style="display: inline-block; ">Shipping Price:</p>
+                                            </div>
+                                            <div>
+                                                <p class="price-text" data-price="@(ViewBag.priceDict[firstID])">@(ViewBag.priceDict[firstID])</p>
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between">
+                                            <div>
+                                                <p style="display: inline-block;" >@(ViewBag.detail[i].ShopName)'s total price: </p>
+                                            </div>
+                                            <div>
+                                                <p id="@(shopTotalPrice+ViewBag.priceDict[firstID])" class="orderprice" style="display: inline-block;">@(shopTotalPrice + ViewBag.priceDict[firstID])</p>
+                                                <p style="display: inline-block;">VND</p>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <span>Select voucher from @(ViewBag.detail[i].ShopName)</span>
+                                            <select onclick="calculatePrice();"
+                                                    onchange="calculatePrice();" name="voucher[]" id="" class="shopVoucher">
+                                                <option selected value="0,0">Choose a one-time voucher</option>
+                                                @foreach (var voucher in ViewBag.vouchers)
+                                                {
+                                                    @if (voucher.UserId == firstID)
+                                                    {
+                                                        @if (voucher.MinOrderValue > shopTotalPrice)
+                                                        {
+                                                            <option disabled value="@(voucher.Percentage+","+voucher.VoucherId)">
+                                                                -@(voucher.Percentage) for @(ViewBag.detail[i].ShopName)’s Painting
+                                                                total more than @(voucher.MinOrderValue)VND
+                                                            </option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@(voucher.Percentage+","+voucher.VoucherId)">
+                                                                -@(voucher.Percentage) for @(ViewBag.detail[i].ShopName)’s Painting
+                                                                total more than @(voucher.MinOrderValue)VND
+                                                            </option>
+                                                        }
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                        <hr style="border-top: 1px dashed green;" />
+                                        firstID = ViewBag.detail[i + 1].UserID;
+                                        shopTotalPrice = 0;
+                                    }
+                                }
+                                else if (ViewBag.detail[i + 1].UserID != firstID)
+                                {
+                                    <div style="display: flex; justify-content: space-between">
+                                        <div>
+                                            <p style="display: inline-block; ">Shipping Price:</p>
+                                        </div>
+                                        <div>
+                                            <p class="price-text" data-price="@(ViewBag.priceDict[firstID])">@(ViewBag.priceDict[firstID])</p>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between">
+                                        <div>
+                                            <p style="display: inline-block;">@(ViewBag.detail[i].ShopName)'s total price: </p>
+                                        </div>
+                                        <div>
+                                            <p id="@(shopTotalPrice+ViewBag.priceDict[firstID])" class="orderprice" style="display: inline-block;" >@(shopTotalPrice + ViewBag.priceDict[firstID])</p>
+                                            <p style="display: inline-block;">VND</p>
+                                        </div>
+
+                                    </div>
+                                    shopTotalPrice = 0;
+
+                                    <p style="text-align: right; margin-right: 3%;">this shop dont have any voucher</p>
+                                    <select name="voucher[]" class="shopVoucher" style="display: none">
+                                        <option value="0,0" selected></option>
+                                    </select>
+                                    <hr style="border-top: 1px dashed green;" />
+                                    firstID = ViewBag.detail[i + 1].UserID;
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                <div class="shop-bill">
+                    <div>
+                        <span style="font-size: 25px;">Total</span>
+                        <p id="totalPriceOrder" style="margin-right: 1%; font-weight: bold;"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row col-md-12 mb-4">
+            <div class="col-xl-6">
+                <div class="shop-bill bill" style="padding-top: 3%;">
+                    <div>
+                        <span>Customer Infomation</span>
+                        <a onclick="loadUserInfor();" class="btn btn-primary">Load my Infor</a>
+                    </div>
+                    <div>
+                        <span>Customer Name</span>
+                        <input id="username" value="" placeholder="Your Name" name="custName" type="text" />
+                    </div>
+                    <div>
+                        <div class="d-flex" style="flex-direction: column;">
+                            <span>Address</span>
+                            <textarea style="width: 200%;" readonly placeholder="Your address"
+                                      id="useraddress" name="address">@ViewBag.address</textarea>
+                        </div>
+                        <a class="btn btn-primary" id="address-popup">Edit Address</a>
+                    </div>
+                    <div>
+                        <span>Customer Phone</span>
+                        <input type="number" placeholder="Phone Number" name="Phone" value="" id="userphone" />
+                    </div>
+                    <div>
+                        <span>Order Note</span>
+                        <textarea style="width: 45%; border: solid black 1px;"
+                                  name="orderNote" placeholder="Your note bout order"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-6">
+                <div class="shop-bill bill" style="padding-top: 3%;">
+                    <div>
+                        <span>Select Shipping Unit</span>
+                        <select onchange="submitCoopID();" name="coop" id="coop">
+                            @foreach (var item in ViewBag.coop)
+                            {
+                                @if (item.ID == ViewBag.coopID)
+                                {
+                                    <option selected value="@(item.ID)">@item.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@(item.ID)">@item.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    @* <div style="justify-content: center; width: 100%;">
+                    <input type="text" style="background-color:#82ae46; color: white" value="3 days after order ready" />
+                    </div> *@
+                    @* <div>
+                    <div>
+                    <span>Payment Method</span>
+                    </div>
+                    <div class="pop-cate">
+                    <div class="pop-cate-element">
+                    <div>
+                    <input class="" name="payment" value="OnlineQRPayment" type="radio">
+                    <label>Online through QR</label>
+                    </div>
+                    <div>
+                    <input class="" name="payment" value="CODPayment" type="radio">
+                    <label>COD</label>
+                    </div>
+                    </div>
+                    </div>
+                    </div> *@
+                    <div style="justify-content: space-evenly;">
+                        <div>
+                            <input hidden id="PassingOrderPrice" name="PassingOrderPrice" value="" />
+                            <a class="btn btn-primary" onclick="onlineQR(); return false;">Order</a>
+                        </div>
+                        <div>
+                            <a href="../Cart" class="btn btn-primary">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" value="@ViewBag.addressID" name="addressid" />
+        <input id="shippingunitid" type="hidden" value="" name="shippingunitid" />
+    </form>
+    <form id="submitCoop" asp-controller="Customer" asp-action="CheckOut" method="post">
+        <input type="hidden" name="addressid" value="@ViewBag.addressID" />
+        <input id="sid" type="hidden" name="shippingunitid" value="@ViewBag.coopID">
+    </form>
+</div>
+
+<div class="popup">
+    <div class="popup-content">
+        <div class="container-profile" style="overflow-y: scroll;">
+
+            <div class="wrapper">
+
+                <section class="post">
+                    <header>Your Address</header>
+                    <div class="content">
+                        <div>
+                            @foreach (var address in ViewBag.user.Address)
+                            {
+                                <div>
+                                    <span onclick="document.getElementById('@address.AddressId').submit();" style="cursor: pointer">
+                                        @(address.Detail + ", " + address.Street + ", " + address.District + ", " + address.City)
+                                        @if (address.StatusNavigation.StatusName == "Default")
+                                        {
+                                            <p style="color:red">(DEFAULT)</p>
+                                        }
+                                        <form id="@address.AddressId" asp-controller="Customer" asp-action="CheckOut" method="post">
+                                            <input type="hidden" name="addressid" value="@address.AddressId" />
+                                            <input type="hidden" name="shippingunitid" value="@ViewBag.coopID">
+                                        </form>
+                                    </span>
+                                    <hr />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="d-flex" style="margin: 1%">
+                        <div class="privacy add-add">
+                            <input id="cancelButton" type="button" value="Add New Address">
+                        </div>
+                        <input class="close-btn" id="cancelButton" type="button" value="Cancel">
+                    </div>
+                </section>
+
+                <section class="audience" style="width: 49%;margin: 1%;">
+                    <form asp-controller="Customer" asp-action="AddAddress" method="post" id="addressform">
+                        <header>
+                            <div class="arrow-back"><i class="fas fa-arrow-left"></i></div>
+                            <p>Add New Address</p>
+                        </header>
+                        <div>
+                            <div class="input-group mb-3">
+                                <select id="city" name="userCity"
+                                        class="form-control form-control-lg bg-light fs-6">
+                                    <option value="" selected>Select your city</option>
+                                </select>
+                            </div>
+                            <div class="input-group mb-3">
+                                <select id="district" name="userDistrict"
+                                        class="form-control form-control-lg bg-light fs-6">
+                                    <option value="" selected>Select your district</option>
+                                </select>
+                            </div>
+                            <div class="input-group mb-3">
+                                <select id="ward" name="userWards"
+                                        class="form-control form-control-lg bg-light fs-6">
+                                    <option value="" selected>Select your wards</option>
+                                </select>
+                            </div>
+                            <div>
+                                <span>Details</span>
+                                <textarea id="detail" style="border: solid black 1px" name="detail" placeholder="Address Detail"></textarea>
+                            </div>
+                            <div class="d-flex" style="justify-content: space-evenly;">
+                                <div>
+                                    <a onclick="submitAddressForm();return false;" class="btn btn-primary">Create</a>
+                                </div>
+                                <div>
+                                    <a class="back-address btn btn-primary">Cancel</a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+    let modalBtn = document.getElementById("address-popup");
+    let modal = document.querySelector(".popup");
+    let closeBtn = document.querySelector(".close-btn");
+    // Hiển thị popup khi nhấp chuột vào button
+    modalBtn.onclick = function () {
+        modal.style.display = "block"
+    }
+    // Đóng popup khi ấn vào nút đóng
+    closeBtn.onclick = function () {
+        modal.style.display = "none"
+    }
+    // Đóng khi nhấp chuột vào bất cứ khu vực nào trên màn hình
+    window.onclick = function (e) {
+        if (e.target == modal) {
+            modal.style.display = "none"
+        }
+    }
+
+</script>
+<script>
+    //check category and submit data if category are valid
+
+    //remove image inside image box, remove the box if image box is empty
+
+    //show and hide the category list
+    const container = document.querySelector(".container-profile"),
+        privacy = container.querySelector(".post .privacy"),
+        arrowBack = container.querySelector(".audience .arrow-back"),
+        backAddress = container.querySelector(".audience .back-address");
+
+    privacy.addEventListener("click", () => {
+        container.classList.add("active");
+    });
+
+    arrowBack.addEventListener("click", () => {
+        container.classList.remove("active");
+    });
+
+    backAddress.addEventListener("click", () => {
+        container.classList.remove("active");
+    });
+
+    //add event to filedialog
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script>
+    var citis = document.getElementById("city");
+    var districts = document.getElementById("district");
+    var wards = document.getElementById("ward");
+    var Parameter = {
+        url: "https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json",
+        method: "GET",
+        responseType: "application/json",
+    };
+    var promise = axios(Parameter);
+    promise.then(function (result) {
+        renderCity(result.data);
+    });
+
+    function renderCity(data) {
+        for (const x of data) {
+            var opt = document.createElement("option");
+            opt.value = x.Name;
+            opt.text = x.Name;
+            opt.setAttribute("data-id", x.Id);
+            citis.options.add(opt);
+        }
+        citis.onchange = function () {
+            district.length = 1;
+            ward.length = 1;
+            if (this.options[this.selectedIndex].dataset.id != "") {
+                const result = data.filter(
+                    (n) => n.Id === this.options[this.selectedIndex].dataset.id
+                );
+
+                for (const k of result[0].Districts) {
+                    var opt = document.createElement("option");
+                    opt.value = k.Name;
+                    opt.text = k.Name;
+                    opt.setAttribute("data-id", k.Id);
+                    district.options.add(opt);
+                }
+            }
+        };
+        district.onchange = function () {
+            ward.length = 1;
+            const dataCity = data.filter(
+                (n) => n.Id === citis.options[citis.selectedIndex].dataset.id
+            );
+            if (this.options[this.selectedIndex].dataset.id != "") {
+                const dataWards = dataCity[0].Districts.filter(
+                    (n) => n.Id === this.options[this.selectedIndex].dataset.id
+                )[0].Wards;
+
+                for (const w of dataWards) {
+                    var opt = document.createElement("option");
+                    opt.value = w.Name;
+                    opt.text = w.Name;
+                    opt.setAttribute("data-id", w.Id);
+                    wards.options.add(opt);
+                }
+            }
+        };
+    }
+
+    //method to calculate total order's price
+    function calculatePrice() {
+        var totalPriceTag = document.getElementById('totalPriceOrder');
+        var passingOrderPrice = document.getElementById('PassingOrderPrice');
+        var ordervoucher = document.querySelectorAll(".shopVoucher");
+        var prices = document.querySelectorAll(".orderprice");
+        var totalPrice = 0;
+
+        for (var i = 0; i < prices.length; i++) {
+            var price = parseFloat(prices[i].id.trim());
+            var percentage = parseInt(ordervoucher[i].selectedOptions[0].value.split(",")[0]);
+            price -= price * percentage / 100;
+            prices[i].textContent = price.toLocaleString('en', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+                useGrouping: true
+            }) + "VND";
+
+            totalPrice += price;
+        }
+
+
+        //show the total price
+        var roundedTotalPrice = parseInt(totalPrice);
+
+        totalPriceTag.textContent = roundedTotalPrice.toLocaleString('en', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+            useGrouping: true
+        }) + "VND";
+
+        passingOrderPrice.value = roundedTotalPrice;
+    }
+
+    //on load event
+    window.addEventListener('load', function () {
+        calculatePrice();
+        var table = document.getElementById('scroll');
+        var openaddress = sessionStorage.getItem('address');
+        var modal = document.querySelector(".popup");
+        if (openaddress == 'address') {
+            sessionStorage.clear();
+            modal.style.display = "block";
+        }
+        table.scrollIntoView({ block: 'center' });
+    });
+
+
+    //method to load user's infor
+    function loadUserInfor() {
+        var userName = document.getElementById('username');
+        var userphone = document.getElementById('userphone');
+        var useraddress = document.getElementById('useraddress');
+
+        userName.value = '@ViewBag.user.Name';
+        userphone.value = '@ViewBag.user.Phone';
+        useraddress.value = '@ViewBag.address';
+    }
+
+    //method to submit create address form
+    function submitAddressForm() {
+        var city = document.getElementById('city').value;
+        var district = document.getElementById('district').value;
+        var ward = document.getElementById('ward').value;
+        var detail = document.getElementById('detail').value;
+
+        if (city == '' | district == '' | ward == '' | detail == '') {
+            alert("Please let us know your full address");
+            return false;
+        }
+        else {
+            var form = document.getElementById('addressform');
+            sessionStorage.setItem('address', 'address');
+            form.submit();
+        }
+    }
+
+    //method to go to onlineQR page
+    function onlineQR() {
+        var coopPrices = document.getElementById('coop').selectedOptions[0].value;
+        var array = coopPrices.split("&");
+        var id = parseInt(array[2]);
+        var name = document.getElementById('username').value;
+        var phone = document.getElementById('userphone').value;
+        var shippingunitid = document.getElementById('shippingunitid');
+
+        if (name.trim() == '') {
+            alert("Please let us know your name");
+            return false;
+        }
+        else if (phone.length < 10 | phone.length > 11) {
+            alert("Please enter a valid phone number");
+            return false;
+        }
+        else {
+            var form = document.getElementById('onlineQR');
+            shippingunitid.value = id;
+            form.submit();
+        }
+    }
+
+    function submitCoopID() {
+        var form = document.getElementById('submitCoop');
+        var coopIDInput = document.getElementById('sid');
+        var coopID = document.getElementById('coop').selectedOptions[0].value;
+        coopIDInput.value = coopID;
+        form.submit();
+    }
+</script>
+<script>
+    function formatPriceWithCommas(price) {
+        return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    // Get all elements with class 'price-text'
+    var priceElements = document.querySelectorAll('.price-text');
+
+    // Loop through each element and format its price
+    priceElements.forEach(function (element) {
+        var price = parseInt(element.getAttribute('data-price')); // Get the price value
+        element.textContent = formatPriceWithCommas(price) + 'VND'; // Update the text content
+    });
+</script>

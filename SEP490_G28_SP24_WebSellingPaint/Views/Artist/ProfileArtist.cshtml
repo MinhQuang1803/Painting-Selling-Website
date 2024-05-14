@@ -1,0 +1,184 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutArtist";
+}
+<style>
+    /* Styles for page content */
+    .page-content {
+        padding: 20px;
+    }
+
+    /* Styles for form */
+    #saveChanges {
+        width: 100%;
+    }
+
+    /* Styles for profile picture */
+    .img-coop {
+        text-align: center;
+        margin-bottom: 20px;
+        width: 50%;
+        margin-left: 20%;
+    }
+
+    .img-account-profile {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .img-btn {
+        cursor: pointer;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 5px;
+        display: inline-block;
+    }
+
+    /* Styles for buttons */
+    .add {
+        margin-bottom: 10px;
+    }
+
+    #popup-btn-2 {
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    /* Styles for inputs */
+    input[type="text"],
+    input[type="email"],
+    textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+
+    input[type="radio"] {
+        margin-right: 5px;
+    }
+
+</style>
+<main>
+
+    <div class="page-header add">
+        <h1>Artist Profile</h1>
+    </div>
+
+    <div class="page-content">
+        <form id="saveChanges" asp-controller="Artist" asp-action="ChangeProfile" method="post">
+            <div class="promotion-detail">
+                <div class="leaderboard">
+                    <div class="img-coop">
+                        <!-- Profile picture image-->
+                        <img style="border-radius: 50%;width: 100%;height: 100%;object-fit: cover;" id="display-image"
+                             class="img-account-profile rounded-circle mb-2" src="@ViewBag.user.Avatar" alt=""><br>
+                        <input type="hidden" value="" id="logo" name="imageData" />
+                        <!-- Profile picture upload button-->
+                        <label class="img-btn" for="upload" type="button" id="fileButton"
+                               title="Upload your image">Choose Avatar</label>
+                        <input type="file" id="upload" accept="image/*" onchange="handleImageUpload()" style="display: none;" />
+                    </div>
+                    <div style="display:flex; justify-content: space-evenly">
+                        <div class="add">
+                            <button type="submit" id="popup-btn-2">Save Changes</button>
+                        </div>
+                        <div class="add">
+                            <a style="text-decoration: none" class="clear-artist" href="../ChangePassword">Change Password</a><br>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="">
+                    <div class="d-flex" style="justify-content: space-between;">
+                        <div style="width: 40%">
+                            <span>Artist Name</span>
+                            <input required pattern="\S.*" title="Please enter a non-empty value"
+                                   id="name" name="username" type="text" value="@ViewBag.user.Name" />
+                        </div>
+                        <div style="width: 40%">
+                            <span>Phone Number</span>
+                            <input id="phone" pattern="[0-9]{10}" title="Please enter a valid phone number"
+                                   name="phonenumber" type="text" value="@ViewBag.user.Phone" />
+                        </div>
+                    </div>
+                    <div class="d-flex" style="justify-content: space-between; align-items: center;">
+                        <div style="width: 60%">
+                            <span>Email Address</span>
+                            <input readonly type="text" value="@ViewBag.user.Email" />
+                        </div>
+                        <div>
+                            <span>Gender</span>
+                            <input value="1" type="radio" name="gender" @(ViewBag.user.Gender ? "checked" : "")>
+                            <label id="">Male</label>
+                            <input value="0" type="radio" name="gender" @(ViewBag.user.Gender ? "" : "checked")>
+                            <label id="">Female</label>
+                        </div>
+                    </div>
+                    <div class="comment-container profile-address" id="commentContainer">
+                        @foreach (var address in ViewBag.address)
+                        {
+                            <ul class="" style="list-style: none;">
+                                <li class="d-flex" style="justify-content: space-between; padding: 2%;">
+                                    <div class="comment-body" style="width: 100%;">
+                                        @(address.Detail + ", " + address.City + ", " + address.District + ", " + address.Street)
+                                        @(address.StatusName == "Default" ? " (DEFAULT)" : "")
+                                    </div>
+                                    <div class="comment-body" style="width: 50%;">
+                                        <form id="@("set"+address.AddressId)" asp-controller="Customer" asp-action="SetDefaultAddress" method="post">
+                                            <input type="hidden" name="addressid" value="@address.AddressId" />
+                                            <input type="hidden" name="action" value="set" />
+                                            @if (address.StatusName != "Default")
+                                            {
+                                                <a href="#" onclick="setDefaultAddress('set'+@address.AddressId)">Set Default</a>
+                                            }
+                                        </form>
+                                        @if (address.StatusName != "Default")
+                                        {
+                                            <form id="@("delete"+address.AddressId)" asp-controller="Customer" asp-action="SetDefaultAddress" method="post">
+                                                <input type="hidden" name="addressid" value="@address.AddressId" />
+                                                <input type="hidden" name="action" value="delete" />
+                                                <a href="#" onclick="deleteAddress('delete'+@address.AddressId)">Delete</a>
+                                            </form>
+                                        }
+                                    </div>
+                                </li>
+                            </ul>
+
+                        }
+
+                    </div>
+                    <div>
+                        <span>Artist Background</span>
+                        <textarea rows="4" name="background" style="border: solid 2px;">@ViewBag.user.Background</textarea>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+<script>
+    function handleImageUpload() {
+
+        var image = document.getElementById("upload").files[0];
+
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            document.getElementById("display-image").src = e.target.result;
+            document.getElementById('logo').value = e.target.result;
+        }
+
+        reader.readAsDataURL(image);
+    }
+
+
+</script>

@@ -1,0 +1,210 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutCustomer";
+}
+<script>
+    window.addEventListener('load', function () {
+        //set max value for end date
+        var today = new Date();
+        var formattedDate = today.toISOString().split('T')[0];
+        document.getElementById("startDate").max = formattedDate;
+        document.getElementById("endDate").max = formattedDate;
+    });
+
+    function submitPostForm() {
+        var form = document.getElementById('filterForm');
+        var searchKey = document.getElementById('searchBox').value;
+        var startDate = document.getElementById('startDate');
+        var endDate = document.getElementById('endDate');
+        var search = document.getElementById('search');
+        search.value = searchKey;
+        if (endDate.value < startDate.value) {
+            Swal.fire("Start date must smaller than end date", "", "error");
+            return false;
+        }
+        else form.submit();
+    }
+
+    function linkClick() {
+        var link = document.getElementById('clear');
+        link.click();
+    }
+</script>
+<body style="background-color: white;">
+    <div class="container-xl mt-4">
+        <nav class="nav nav-borders">
+            <div class="card-header" target="__blank" style="text-shadow: 2px 2px 5px red; font-size: 30px;">Post</div>
+        </nav>
+        <div class="row" style="padding-bottom: 2%;">
+            <div class="col-xl-8 comment-container" style="max-height: 850px; overflow-x: hidden;">
+                <!-- Profile picture card-->
+                <div class="profile-card mb-4 mb-xl-0" style="border:none;">
+                    <div class="card-body">
+                        <ul class="" style="list-style: none;">
+                            @foreach (var post in ViewBag.postList)
+                            {
+                                <li class="d-flex">
+                                    <div class="comment-body d-flex">
+                                        @if (post.ImageUrl != null)
+                                        {
+                                            <img class="img-account-profile mb-2" src="@post.ImageUrl">
+                                        }
+                                        <div style="margin: 0 3%;">
+                                            <div class="mb-3 d-flex" style="width: 130%; justify-content: space-between;">
+                                                <div><a href="../PostDetail?id=@post.ID" style="color: black;">@post.Date</a></div>
+                                            </div>
+                                            <h3 class="heading"><a href="../PostDetail?id=@post.ID" style="color: black;">@post.Title</a></h3>
+                                            <p>@post.Content</p>
+                                            <p style="margin-top: 2%">
+                                                <a href="../PostDetail?id=@post.ID" class="btn btn-primary py-2 px-3">Read more</a>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </li>
+                                <hr>
+                            }
+
+                            @* <li class="d-flex">
+                            <div class="comment-body d-flex">
+                            <img class="img-account-profile mb-2" src="/image/login.jpg">
+                            <div>
+                            <div class="mb-3 d-flex" style="width: 130%; justify-content: space-between;">
+                            <div><a href="" style="color: black;">dd/mm/yyyy</a></div>
+                            <div><a href="" style="color: black;">hh:mm:ss</a></div>
+                            </div>
+                            <h3 class="heading"><a href="" style="color: black;">Post Title</a></h3>
+                            <p>Content</p>
+                            <p>
+                            <a href="" class="btn btn-primary py-2 px-3">Read more</a>
+                            </p>
+                            </div>
+                            </li> *@
+
+                           
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4">
+                <!-- Profile picture card-->
+                <div style="padding: 3% 6% 3% 6%;" class="profile-card mb-4 mb-xl-0">
+                    <div class="card-body">
+
+                        <div>
+                            <input id="searchBox" value="@ViewBag.search" type="text" class="search-box" placeholder="Search...">
+                        </div>
+                        <div class="">
+                            <form id="filterForm" asp-controller="Customer" asp-action="Post" method="post">
+                                <input type="hidden" value="@ViewBag.search" name="search" id="search" />
+                                <label for="">Category</label>
+                                <select name="category" id="" style="width: 67%;">
+                                    <option value="0">All</option>
+                                    @foreach (var category in ViewBag.categoryList)
+                                    {
+                                        @if (ViewBag.category == category.ID)
+                                        {
+                                            <option selected value="@category.ID">@category.Name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@category.ID">@category.Name</option>
+                                        }
+                                    }
+                                </select><br>
+                                <div class="d-flex">
+                                    <div style="display: inline-block;">
+                                        <label for="">From</label>
+                                        <input value="@ViewBag.startDate" min="2000-01-01" type="date" id="startDate" name="startDate" style="width: 90%">
+                                    </div>
+                                    <div>
+                                        <label for="">To</label>
+                                        <input value="@ViewBag.endDate" min="2000-01-01" type="date" id="endDate" name="endDate" style="width: 90%">
+                                    </div>
+                                </div>
+                                <div class="d-flex">
+                                    <div>
+                                        <label for="">Sort By</label>
+                                        <select name="orderby" id="">
+                                            <option value="View">Popularity</option>
+                                            @if (ViewBag.orderby == "Date")
+                                            {
+                                                <option selected value="Date">Publish Date</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="Date">Publish Date</option>
+                                            }
+                                        </select><br>
+                                    </div>
+                                    <div style="margin-left: 2%;">
+                                        <label for="">Order</label>
+                                        <select name="order" id="">
+                                            <option value="ASC">ASC</option>
+                                            @if (ViewBag.order == "DESC")
+                                            {
+                                                <option selected value="DESC">DESC</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="DESC">DESC</option>
+                                            }
+
+                                        </select><br>
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="mb-4 mb-xl-0 d-flex" style="justify-content: space-evenly;margin: 3% 5% 15% 15%;">
+                                <button class="btn btn-primary" data-toggle="tooltip" data-placement="top"
+                                        title="" onclick="submitPostForm();return false;">
+                                    Filter
+                                </button><br>
+                                <button onclick="linkClick();" class="btn btn-primary" data-toggle="tooltip" data-placement="top">
+                                    Clear
+                                </button>
+                                <a id="clear" href="../Post"></a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="pprofile-card mb-4 mb-xl-0" style="margin-top: 3%">
+                    <div class="card-header">Recent Post</div>
+                    @foreach (var item in ViewBag.recentPost)
+                    {
+                        <div style="margin-top: 5%;" class="card-body">
+                            <div>
+                                <div class="comment-body d-flex">
+                                    @if (item.ImageUrl != null)
+                                    {
+                                        <img class="img-account-profile rounded-circle mb-2" style="height: 80px;"
+                                             src="@item.ImageUrl">
+                                    }
+                                    <div style="">
+                                        <h3 class="heading"><a href="../PostDetail?id=@item.ID" style="color: black;">@item.Title</a></h3>
+                                    </div>
+                                </div>
+                                <p>@item.Content</p>
+                            </div>
+                            <hr>
+                        </div>
+                    }
+
+                    @* <div class="card-body">
+                    <div>
+                    <div class="comment-body d-flex">
+                    <img class="img-account-profile rounded-circle mb-2" style="height: 5rem;"
+                    src="/image/login.jpg">
+                    <div style="margin: 10% 0 0 20%;">
+                    <h3 class="heading"><a href="" style="color: black;">Post Title</a></h3>
+                    </div>
+                    </div>
+                    <p>Content</p>
+                    </div>
+                    </div> *@
+                </div>
+            </div>
+        </div>
+    </div>
+</body>

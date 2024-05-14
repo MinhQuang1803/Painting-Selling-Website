@@ -1,0 +1,138 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutArtist";
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css"></script>
+
+<script>
+    $(document).ready(function () {
+
+        // Cấu hình các nhãn phân trang
+        $('#order-table').dataTable({
+            "language": {
+                "sProcessing": "Processing...",
+                "sLengthMenu": "Display _MENU_ entries",
+                "sZeroRecords": "No suitable result",
+                "sInfo": "Displaying _START_ to _END_ of _TOTAL_ entries",
+                "sInfoEmpty": "Viewing 0 to 0 of 0 entries",
+                "sInfoFiltered": "(Filtered from _MAX_ entries)",
+                "sInfoPostFix": "",
+                "sSearch": "Search:",
+                "sUrl": "",
+                "oPaginate": {
+                    "sFirst": "First",
+                    "sPrevious": "Previous",
+                    "sNext": "Next",
+                    "sLast": "Last"
+                }
+            },
+            "processing": true, // tiền xử lý trước
+            "aLengthMenu": [[5, 10, 20, 50], [5, 10, 20, 50]], // danh sách số trang trên 1 lần hiển thị bảng
+        });
+
+    });
+</script>
+<script>
+    //method to submit filter order form
+    function submitOrderFilter() {
+        var startDate = document.getElementById('startDate').value;
+        var endDate = document.getElementById('endDate').value;
+        if (startDate > endDate) {
+            alert("Start date must smaller than end date");
+            return false;
+        }
+        else {
+            var form = document.getElementById('filterOrder');
+            form.submit();
+        }
+    }
+</script>
+<main>
+
+    <div class="page-header add">
+        <h1>Your Order</h1>
+    </div>
+
+    <div class="page-content">
+        <div class="records">
+            <form id="filterOrder" asp-controller="Artist" asp-action="OrderArtist" method="post">
+                <div class="record-header">
+                    <div class="browse add">
+                        <span style="font-size: 25px; font-weight:bold;">Filter</span>
+                        <span>Status</span>
+                        <select name="status" id="">
+                            <option value="0">All</option>
+                            @foreach (var item in ViewBag.statusList)
+                            {
+                                @if (item.ID==ViewBag.status)
+                                {
+                                    <option selected value="@item.ID">@item.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.ID">@item.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="add filter">
+                        <span>Date</span><br>
+                        <div style="display:flex">
+                            <input value="@ViewBag.startDate" type="date" id="startDate" name="startDate" style="width: 45%;">
+                            <span style="padding: 2%">To</span>
+                            <input value="@ViewBag.endDate" type="date" id="endDate" name="endDate" style="width: 45%;">
+                        </div>
+                    </div>
+                    <div class="add">
+                        <button onclick="submitOrderFilter(); return false;" style="margin-right: 1rem;">Filter</button>
+                        <a href="../OrderArtist" style="text-decoration: none" class="clear-artist">
+                            Clear
+                        </a>
+                    </div>
+
+                </div>
+            </form>
+            <div>
+                <table width="100%" id="order-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th><span class="las la-sort"></span> Order Date</th>
+                            <th><span class="las la-sort"></span> Order Status</th>
+                            <th><span class="las la-sort"></span> Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int i = 0;
+                            @foreach (var item in ViewBag.orderList)
+                            {
+                                i++;
+                                <tr>
+                                    <td>@i</td>
+                                    <td>
+                                        @item.OrderDate
+                                    </td>
+                                    <td>
+                                        @item.StatusName
+                                    </td>
+                                    <td>
+                                        <a href="../OrderDetailArtist?id=@item.ID">Detail</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>

@@ -1,0 +1,146 @@
+﻿@{
+    Layout = "_LayoutLogin";
+}
+<link rel="stylesheet" href="/css/profile.css" />
+<meta http-equiv="refresh" content="10">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    label {
+        font-family: 'Roboto', sans-serif;
+        font-size: 15px;
+        font-weight: 400;
+        letter-spacing: 0.025rem;
+        font-style: normal;
+        text-transform: uppercase;
+        color: black;
+        background-color: #FFFFFF;
+        border-radius: 1.25rem;
+        -webkit-border-radius: 1.25rem;
+        -moz-border-radius: 1.25rem;
+        padding: 0.35rem 0.75rem;
+        border-style: solid;
+        border-width: 0.125rem;
+        border-color: #EF2D56;
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        -box-shadow: none;
+        width: 200%;
+    }
+
+    .card-body {
+        width: 60%;
+        margin: 10% 20%;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+    }
+
+    #Extendsuccess {
+        display: none; /* Hide the success message initially */
+    }
+
+    /* Style for the QR code container */
+    .featured-image {
+        position: relative;
+    }
+
+        .featured-image img {
+            max-width: 100%;
+            height: auto;
+        }
+
+    #goto {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-weight: bold;
+    }
+</style>
+<script>
+
+
+
+    function goToLogin() {
+        window.location.href = "/Login/Login";
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get the <p> tag
+        var pTag = document.getElementById('success');
+
+        if (pTag.textContent.trim().length === 2) {
+            var count = 3;
+            var countdownInterval = setInterval(function () {
+                swal.fire({
+                    title: "Extend Account Successfully",
+                    text: "Now you can login into your account ,Redirect to login page in " + count,
+                    timer: 5000,
+                    timerProgressBar: true,
+                    onBeforeOpen: () => {
+                        Swal.showLoading();
+                        const content = Swal.getContent();
+                        const $ = content.querySelector.bind(content);
+                        const timer = $('.swal2-timer-progress-bar');
+                        timer.style.backgroundColor = '#4caf50';
+                    }
+                });
+
+                count--;
+
+                if (count < 0) {
+                    window.location.href = "../Login/Login";
+
+                    clearInterval(countdownInterval);
+                }
+            }, 1000);
+        }
+    });
+</script>
+<script>
+    function signout() {
+        window.location.href = '/Signout';
+    }
+</script>
+<div class="card-body row" style="width: 60%; margin: 10% 20%;background: white">
+    <div class="col-xl-4">
+        <!-- Profile picture card-->
+        <div class="mb-4 mb-xl-0" style="text-align: center;">
+            <div class="featured-image mb-3">
+                <p id="goto" style="color: green"></p>
+                <img src="@ViewBag.QrGenerate" style="padding-top: 15%; padding-bottom: 15%" />
+            </div>
+            <button type="button" onclick="signout()" class="btn btn-primary" data-mdb-ripple-init>
+                Back To Login
+            </button>
+        </div>
+    </div>
+    <div class="col-xl-8 profile-address">
+        <div class="col-md-6">
+            <img style="height: 5rem;" src="https://inkythuatso.com/uploads/images/2021/09/logo-vietcombank-inkythuatso-10-10-41-18.jpg" />
+            <label>
+                VCB - Vietcombank - Ngân hàng thương mại cổ phần Ngoại thương Việt Nam
+            </label>
+            <label>
+                Số Tài Khoản: 9926056888
+            </label>
+            <label>
+                Tên Tài Khoản:NGHIEM HUY SON
+            </label>
+            <label>
+                Số Tiền thanh toán: 300,000 VND
+            </label>
+            <label>
+                Nội dung Giao Dịch: @ViewBag.extendAccountCode
+            </label>
+            <p id="success" hidden>@ViewBag.success</p>
+
+            @if (@ViewBag.ActiveDate != null && @ViewBag.ExpiredDate != null)
+            {
+                <label> Ngày hết hạn: @ViewBag.ExpiredDate tính từ thời điểm gia hạn tài khoản ( hôm nay ngày @ViewBag.ActiveDate) </label>
+            }
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,181 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutManager";
+}
+
+<main>
+
+    <div class="page-header add">
+        <h1>Statistic</h1>
+    </div>
+
+    <div class="page-content">
+
+        <div class="analytics">
+
+            <div class="card">
+                <div class="card-head">
+                    <h2>@ViewBag.totalCustomer</h2>
+                    <span class="las la-eye"></span>
+                </div>
+                <div class="card-progress">
+                    <span>Total Customer</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <h2>0</h2>
+                    <span class="las la-shopping-basket"></span>
+                </div>
+                <div class="card-progress">
+                    <small>New Customer In Month</small>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <h2>@ViewBag.totalArtist</h2>
+                    <span class="las la-shopping-cart"></span>
+                </div>
+                <div class="card-progress">
+                    <small>Total Artist</small>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <h2>0</h2>
+                    <span class="las la-comments"></span>
+                </div>
+                <div class="card-progress">
+                    <small>New Artist In Month</small>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="record-header">
+            <form id="filterChart" asp-controller="Manager" asp-action="StatisticManager" method="post">
+                <div class="browse add">
+                    <span>Year</span>
+                    <select name="year" id="">
+                        @foreach (var year in ViewBag.years)
+                        {
+                            @if (year == ViewBag.selectedYear)
+                            {
+                                <option selected value="@year">@year</option>
+                            }
+                            else
+                            {
+                                <option value="@year">@year</option>
+                            }
+
+                        }
+                    </select>
+                    <span>Month</span>
+                    <select style="min-height: 5%;" name="month" id="">
+                        @foreach (var month in ViewBag.months)
+                        {
+                            @if (month == ViewBag.selectedMonth)
+                            {
+                                <option selected value="@month">@month</option>
+                            }
+                            else
+                            {
+                                <option value="@month">@month</option>
+                            }
+
+                        }
+                    </select>
+                </div>
+            </form>
+            <div class="d-flex">
+                <div class="add">
+                    <button onclick="submitForm();" class="btn fs-6 clear-artist">
+                        Filter
+                    </button>
+                </div>
+                <div class="add" style="margin-left: 3%">
+                    <a href="../StatisticManager" style="text-decoration: none;
+                padding-top: 15%;" class="clear-artist">
+                        Reload
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="chart-artist">
+            <div class="chart-bar-artist">
+                <h1 style="font-size: 30px;"> Order Statistic</h1>
+                <canvas id="myChart"></canvas>
+            </div>
+            <div class="chart-artist">
+                <h1 style="font-size: 30px;"> Usage Statistic</h1>
+                <canvas id="myChart2"></canvas>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+<script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var success = [0,0,0,0];
+    var fail = [0, 0, 0, 0];
+
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+            datasets: [{
+                data: [success[0], success[1], success[2], success[3]],
+                label: "Successful Order",
+                borderColor: "rgb(62,149,205)",
+                backgroundColor: "rgb(62,149,205)",
+                borderWidth: 2
+            }, {
+                data: [fail[0], fail[1], fail[2], fail[3]],
+                label: "Cancel/Return Order",
+                borderColor: "rgb(60,186,159)",
+                backgroundColor: "rgb(60,186,159)",
+                borderWidth: 2
+            }
+            ]
+        },
+    });
+</script>
+<script>
+    var ctx = document.getElementById('myChart2').getContext('2d');
+    //get data from controller as array
+    var customer = [10, 20, 30, 40];
+    var bought = [10, 20, 30, 40];
+
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+            datasets: [{
+                data: [customer[0], customer[1], customer[2], customer[3]],
+                label: "Number Of Customer",
+                borderColor: "rgb(62,149,205)",
+                backgroundColor: "rgb(62,149,205)",
+                borderWidth: 2
+            }, {
+                data: [bought[0], bought[1], bought[2], bought[3]],
+                label: "Number Bought Painting",
+                borderColor: "rgb(60,186,159)",
+                backgroundColor: "rgb(60,186,159)",
+                borderWidth: 2
+            }
+            ]
+        },
+    });
+
+    function submitForm() {
+        var form = document.getElementById('filterChart');
+        form.submit();
+    }
+</script>

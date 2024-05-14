@@ -1,0 +1,777 @@
+﻿@{
+    Layout = "_LayoutCustomerWithNoSlider";
+}
+<script>
+
+    //function to restore scroll position after load
+    window.addEventListener('load', function () {
+        scrollTo();
+    });
+
+    function filterPost() {
+        sessionStorage.setItem('element', 'post');
+        var form = document.getElementById('filterForm');
+        var startDate = document.getElementById('startDate').value;
+        var endDate = document.getElementById('endDate').value;
+        if (endDate < startDate) {
+            Swal.fire({
+                icon: "error",
+                text: "End date must smaller than start date"
+            });
+            return false;
+        }
+        else form.submit();
+    }
+
+    function scrollTo() {
+        //set max value for end date
+        var today = new Date();
+        var formattedDate = today.toISOString().split('T')[0];
+        document.getElementById("startDate").max = formattedDate;
+        document.getElementById("endDate").max = formattedDate;
+
+        var scrollElement = sessionStorage.getItem('element');
+        var addressElement = "";
+        if (scrollElement == 'address') {
+            addressElement = document.getElementById('defaultAddress');
+        }
+        else if (scrollElement == 'post') {
+            addressElement = document.getElementById('clearButton');
+        }
+        addressElement.scrollIntoView();
+        sessionStorage.clear();
+    }
+
+    function setDefaultAddress(addressID) {
+        sessionStorage.setItem('element', 'address');
+        var form = document.getElementById(addressID);
+        Swal.fire({
+            icon: "question",
+            title: "Do You Want To Save The Change?",
+            showCancelButton: true,
+        }).then(result => {
+            if (result.isConfirmed) {
+                sessionStorage.setItem('element', 'address');
+                form.submit();
+            } else {
+                Swal.fire("Changes are not saved", "", "info");
+                return false;
+            }
+        });
+    }
+
+    function clearFilter() {
+        var form = document.getElementById('clearButton');
+        sessionStorage.setItem('element', 'post');
+        form.submit();
+    }
+
+    function deleteAddress(addressID) {
+        var form = document.getElementById(addressID);
+        Swal.fire({
+            icon: "question",
+            title: "Are you sure you want to delete this address?",
+            showCancelButton: true,
+        }).then(result => {
+            if (result.isConfirmed) {
+                sessionStorage.setItem('element', 'address');
+                form.submit();
+            } else {
+                Swal.fire("Changes are not saved", "", "info");
+                return false;
+            }
+        });
+    }
+
+    function submitInfoForm(e) {
+        e.preventDefault();
+
+        Swal.fire({
+            icon: "question",
+            title: "Do You Want To Save The Change?",
+            showCancelButton: true,
+        }).then(result => {
+            if (result.isConfirmed) {
+                var form = document.getElementById('InfoForm');
+                var image = document.getElementById('display-image');
+                var imageData = document.getElementById('imageData');
+                var username = document.getElementById('inputUsername');
+                if (username.value.trim() == '') {
+                    Swal.fire("Please Enter Your Name", "", "error");
+                    return false;
+                }
+                imageData.value = image.src;
+                form.submit();
+            } else {
+                Swal.fire("Changes are not saved", "", "info");
+                return false;
+            }
+        });
+    }
+
+    function submitAddressForm() {
+        var city = document.getElementById('city').value;
+        var district = document.getElementById('district').value;
+        var ward = document.getElementById('ward').value;
+        var detail = document.getElementById('detail').value;
+
+        if (city == '' | district == '' | ward == '' | detail == '') {
+            alert("Please let us know your full address");
+            return false;
+        }
+        else {
+            var form = document.getElementById('addressform');
+            sessionStorage.setItem('address', 'address');
+            form.submit();
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        var pTag = document.getElementById('checkAddNew');
+       
+        if (pTag.textContent.trim().length === 2) {
+            alert("Add new address successfully");
+        } else if (pTag.textContent.trim().length === 3) {
+            alert("Your already add this address, please enter new one");
+        }
+    });
+
+</script>
+<body style="background-color: white; font-size: x-large">
+    <div class="container-xl px-4 mt-4">
+        <!-- Account page navigation-->
+        <nav class="nav nav-borders">
+            <div class="card-header" target="__blank" style="text-shadow: 0 0 3px #FF0000;font-size: 30px;">
+                My Profile
+            </div>
+        </nav><br />
+        <div class="row">
+            <div class="col-xl-4">
+                <!-- Profile picture card-->
+                <div id="addressZone" class="profile-card mb-4 mb-xl-0">
+                    <div class="card-header" style="text-shadow: 0 0 3px #FF0000;font-size: 20px;">Profile Picture</div>
+                    <div class="card-body text-center">
+                        <!-- Profile picture image-->
+                        <img id="display-image" class="img-account-profile rounded-circle mb-2" src="@ViewBag.profile.Avatar"
+                             alt=""><br>
+                        <!-- Profile picture upload button-->
+                        <label class="btn btn-primary" for="upload" type="button" id="fileButton"
+                               title="Upload your image">Upload new image</label>
+                        <input type="file" accept="image/*" id="upload" onchange="handleImageUpload()" style="display: none;" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-8">
+                <!-- Account details card-->
+                <div class="profile-card mb-4">
+                    <div class="card-header" style="text-shadow: 0 0 3px #FF0000;font-size: 20px;">Account Details</div>
+                    <div class="card-body" style="margin: 2%">
+                        <form id="InfoForm" method="post" asp-controller="Customer" asp-action="Update" enctype="multipart/form-data" onsubmit="submitInfoForm(event);">
+                            <input type="hidden" value="@ViewBag.profile.ID" name="id" />
+                            <input type="hidden" id="imageData" name="imageData" />
+                            <!-- Form Group (username)-->
+                            <div class="mb-3">
+                                <label class="small mb-1" for="inputUsername">Full name</label>
+                                <input class="form-control" id="inputUsername" name="username" type="text"
+                                       placeholder="Enter your full name" value="@ViewBag.profile.Name">
+                            </div>
+
+                            <div class="row">
+                                <div class="row gx-3 mb-3 col-lg-6 mb-5 ftco-animate">
+                                    <!-- Form Group (first name)-->
+                                    <div class="col-md-6">
+                                        <label class="small mb-1" for="inputGender">Gender</label>
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <div class="d-flex">
+                                                <input @(ViewBag.profile.Gender == true ? "checked" : "") type="radio" id="male" name="gender" value="male">
+                                                <label for="male">Male</label>
+                                            </div>
+                                            <div class="d-flex">
+                                                <input @(ViewBag.profile.Gender == false ? "checked" : "") type="radio" id="female" name="gender" value="female">
+                                                <label for="female">Female</label>
+                                            </div>
+                                        </div><br>
+                                        <button id="defaultAddress" class="btn btn-primary" type="submit" data-toggle="tooltip"
+                                                title="Save all">
+                                            Save changes
+                                        </button>
+                                    </div>
+
+                                </div>
+                                <!-- Form Row        -->
+                                <div class="row gx-3 mb-3 col-lg-6 mb-5 ftco-animate">
+                                    <div class="mb-3" style="width: 80%;">
+                                        <label class="small mb-1" for="inputLastName">Phone Number</label>
+                                        <input class="form-control" name="phonenumber" id="inputLastName" type="number"
+                                               required="" pattern="[0-9]{10}"
+                                               title="Please enter 10 digits with no spaces."
+                                               placeholder="Enter your Phone Number"
+                                               value="@ViewBag.profile.Phone">
+                                    </div>
+                                    <!-- Form Group (email address)-->
+                                    <div class="mb-3" style="width: 80%;">
+                                        <label class="small mb-1" for="inputEmailAddress">Email address</label>
+                                        <input class="form-control" name="email" id="inputEmailAddress" readonly
+                                               type="email" placeholder="Enter your email address" value="@ViewBag.profile.Email">
+                                    </div>
+                                </div>
+
+                            </div>
+                            <!-- Form Row-->
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!----Address Detail----->
+
+        <div class="row">
+            <div class="col-xl-4">
+                <!-- Profile picture card-->
+                <div class="mb-4 mb-xl-0" style="text-align: center;">
+                    <a class="btn btn-primary" href="../ChangePassword" data-toggle="tooltip" data-placement="top"
+                       title="">Change Password</a><br>
+                    <button class="btn btn-primary" style="margin-top: 5%;" id="popup-adrress">Add New Address</button>
+                </div>
+            </div>
+            <div class="comment-container col-xl-8 profile-address" id="commentContainer">
+                @foreach (var address in ViewBag.address)
+                {
+                    <ul class="" style="list-style: none;">
+                        <li class="d-flex" style="justify-content: space-between; padding: 2%;">
+                            <div class="comment-body" style="width: 100%;">
+                                @(address.Detail + ", " + address.City + ", " + address.District + ", " + address.Street)
+                                @(address.StatusName == "Default" ? " (DEFAULT)" : "")
+                            </div>
+                            <div class="comment-body" style="width: 50%;">
+                                <form id="@("set"+address.AddressId)" asp-controller="Customer" asp-action="SetDefaultAddress" method="post">
+                                    <input type="hidden" name="addressid" value="@address.AddressId" />
+                                    <input type="hidden" name="action" value="set" />
+                                    @if (address.StatusName != "Default")
+                                    {
+                                        <a href="#" onclick="setDefaultAddress('set'+@address.AddressId)">Set Default</a>
+                                    }
+                                </form>
+                                @if (address.StatusName != "Default")
+                                {
+                                    <form id="@("delete"+address.AddressId)" asp-controller="Customer" asp-action="SetDefaultAddress" method="post">
+                                        <input type="hidden" name="addressid" value="@address.AddressId" />
+                                        <input type="hidden" name="action" value="delete" />
+                                        <a href="#" onclick="deleteAddress('delete'+@address.AddressId)">Delete</a>
+                                    </form>
+                                }
+                            </div>
+                        </li>
+                    </ul>
+
+                }
+
+            </div>
+        </div>
+        <br>
+
+        <!-----Filter---->
+
+        <div class="row" style="padding-bottom: 2%;">
+            <div class="col-xl-4">
+                <form id="filterForm" asp-controller="Customer" asp-action="Profile" method="post">
+                    <div>
+                        <h3 style="text-shadow: 0 0 3px #FF0000;font-size: 30px;">Filter</h3>
+                        <label for="">Status</label>
+                        <select name="status" id="" style="width:50%;text-align:center;">
+                            <option value="0">---All---</option>
+                            @foreach (var status in ViewBag.statusList)
+                            {
+                                @if (ViewBag.status == status.ID)
+                                {
+                                    <option selected value="@status.ID">@status.Name</option>
+                                }
+                                else
+                                {
+                                    <option value="@status.ID">@status.Name</option>
+                                }
+                            }
+                        </select><br>
+                        <label for="">Date</label>
+                        <input min="2000-01-01" value="@ViewBag.startDate" type="date" id="startDate" name="startDate" style="width: 50%;margin-left: 3%;">
+                        <br><label>To</label><br>
+                        <label for="">Date</label>
+                        <input min="2000-01-01" value="@ViewBag.endDate" type="date" id="endDate" name="endDate" style="width: 50%;margin-left: 3%;">
+                    </div>
+                </form>
+                <div class="mb-4 mb-xl-0 d-flex" style="margin-top: 3%;">
+                    <button class="btn btn-primary" data-toggle="tooltip" data-placement="top"
+                            title="" onclick="filterPost();">
+                        Filter
+                    </button><br>
+                    <form id="clearButton" asp-controller="Customer" asp-action="Profile" method="get">
+                        <button class="btn btn-primary" data-toggle="tooltip" data-placement="top" style="margin-left: 200%;"
+                                title="" onclick="clearFilter();" id="">
+                            Clear
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-xl-8 tableFixHead" id="">
+                <table style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Post Title</th>
+                            <th>Post Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < ViewBag.postList.Count; i++)
+                        {
+                            <tr>
+                                <td style="text-align: right;">@(i + 1)</td>
+                                <td>@ViewBag.postList[i].Title</td>
+                                <td>@ViewBag.postList[i].StatusName</td>
+                                <td><a href="#">View Detail</a></td>
+                            </tr>
+                        }
+                    </tbody>
+
+                    @* <tr>
+                    <td>2</td>
+                    <td>Post Title</td>
+                    <td>Denied</td>
+                    <td><a href="">View Detail</a></td>
+                    </tr>
+                    <tr>
+                    <td>3</td>
+                    <td>Post Title</td>
+                    <td>Accepted</td>
+                    <td><a href="">View Detail</a></td>
+                    </tr> *@
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @* create post *@
+    <div class="popup">
+        <div class="popup-content">
+            <div class="container-profile" style="overflow-y: scroll;">
+
+                <div class="wrapper">
+
+                    <section class="post">
+                        <form action="" id="formPost" method="">
+                            <header>Create Post</header>
+                            <input oninput="checkInputLength(100);" id="title" name="title"
+                                   placeholder="Give your post a title" style="width: 100%; margin-bottom: 10px;"
+                                   type="text">
+                            <div class="content">
+                                <img src="/image/profile.jpg" alt="logo">
+                                <div class="details">
+                                    <p>User Name</p>
+                                    <div class="privacy">
+                                        <span>Categories</span>
+                                        <i class="bi bi-caret-down-fill"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="userID" value="">
+                            <textarea id="postContent" name="content" placeholder="What's on your mind?"
+                                      spellcheck="false"></textarea>
+
+                            <div class="options">
+                                <p>Add images to Your Post</p>
+                                <ul class="list" style="margin: 2%;">
+                                    <li><img onclick="openFileDialog();" src="/image/gallery.jpg" alt="gallery"></li>
+                                    <input type="file" id="imageInput" accept="image/*" accept="image/*" style="display: none">
+                                </ul>
+                            </div>
+
+                            <div id="imageList"
+                                 style="margin-top: 20px; overflow-x: scroll; width: 100%; white-space: nowrap; display: none">
+                            </div>
+                            <div class="d-flex" style="align-items: baseline">
+                                <button id="cancelButton" style="width: 48%;"
+                                        onclick="checkAndSubmit();return false;">
+                                    Post
+                                </button>
+                                <button class="btn btn-primary close-btn" id="cancelButton">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </section>
+                    <section class="audience">
+                        <header>
+                            <div class="arrow-back"><i class="bi bi-arrow-left"></i></div>
+                            <p>Select Categories</p>
+                        </header>
+                        <div class="content">
+                            <p>What category will your post is?</p>
+                            <span>You can choose as many category as you want</span>
+                        </div>
+                        <div class="scrollable-container">
+                            <ul class="list">
+                                <li>
+                                    <div class="column">
+                                        <div class="details">
+                                            <p></p>
+                                            <span style="width: 100%;">Categories Name</span>
+                                        </div>
+                                    </div>
+                                    <input value="" type="checkbox" class="checkbox">
+                                </li>
+                            </ul>
+                        </div>
+                    </section>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div id="myModal" class="modal">
+        <form id="addressform" asp-controller="Customer" asp-action="ProfileAddNewAddress" method="post">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="close">&times;</span>
+                    <p>Add New Address</p>
+                </div>
+                <div>
+                    <div class="input-group mb-3">
+                        <select id="city" name="userCity"
+                                class="form-control form-control-lg bg-light fs-6">
+                            <option value="" selected>Select your city</option>
+                        </select>
+                    </div>
+                    <div class="input-group mb-3">
+                        <select id="district" name="userDistrict"
+                                class="form-control form-control-lg bg-light fs-6">
+                            <option value="" selected>Select your district</option>
+                        </select>
+                    </div>
+                    <div class="input-group mb-3">
+                        <select id="ward" name="userWards"
+                                class="form-control form-control-lg bg-light fs-6">
+                            <option value="" selected>Select your wards</option>
+                        </select>
+                    </div>
+                    <div>
+                        <span>Details</span>
+                        <textarea id="detail" style="border: solid black 1px" name="detail" placeholder="Address Detail" required></textarea>
+                    </div>
+                    <div class="d-flex" style="justify-content: space-evenly;">
+                        <div>
+                            <a onclick="submitAddressForm();return false;" class="btn btn-primary">Create</a>                          
+                        </div>
+                        <div>
+                            <a class="back-address btn btn-primary">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <p hidden id="checkAddNew">@ViewBag.alertMess</p>
+    </div>
+    <script>
+        // Get the modal
+        var modal = document.getElementById("myModal");
+
+        // Get the button that opens the modal
+        var btn = document.getElementById("popup-adrress");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+        var btnCancel = document.getElementsByClassName("back-address")[0];
+
+        // When the user clicks the button, open the modal
+        btn.onclick = function () {
+            modal.style.display = "block";
+        }
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        btnCancel.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <script>
+        var citis = document.getElementById("city");
+        var districts = document.getElementById("district");
+        var wards = document.getElementById("ward");
+        var Parameter = {
+            url: "https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json",
+            method: "GET",
+            responseType: "application/json",
+        };
+        var promise = axios(Parameter);
+        promise.then(function (result) {
+            renderCity(result.data);
+        });
+
+        function renderCity(data) {
+            for (const x of data) {
+                var opt = document.createElement("option");
+                opt.value = x.Name;
+                opt.text = x.Name;
+                opt.setAttribute("data-id", x.Id);
+                citis.options.add(opt);
+            }
+            citis.onchange = function () {
+                district.length = 1;
+                ward.length = 1;
+                if (this.options[this.selectedIndex].dataset.id != "") {
+                    const result = data.filter(
+                        (n) => n.Id === this.options[this.selectedIndex].dataset.id
+                    );
+
+                    for (const k of result[0].Districts) {
+                        var opt = document.createElement("option");
+                        opt.value = k.Name;
+                        opt.text = k.Name;
+                        opt.setAttribute("data-id", k.Id);
+                        district.options.add(opt);
+                    }
+                }
+            };
+            district.onchange = function () {
+                ward.length = 1;
+                const dataCity = data.filter(
+                    (n) => n.Id === citis.options[citis.selectedIndex].dataset.id
+                );
+                if (this.options[this.selectedIndex].dataset.id != "") {
+                    const dataWards = dataCity[0].Districts.filter(
+                        (n) => n.Id === this.options[this.selectedIndex].dataset.id
+                    )[0].Wards;
+
+                    for (const w of dataWards) {
+                        var opt = document.createElement("option");
+                        opt.value = w.Name;
+                        opt.text = w.Name;
+                        opt.setAttribute("data-id", w.Id);
+                        wards.options.add(opt);
+                    }
+                }
+            };
+        }
+    </script>
+    <script>
+        function handleImageUpload() {
+
+            var image = document.getElementById("upload").files[0];
+
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                document.getElementById("display-image").src = e.target.result;
+            }
+
+            reader.readAsDataURL(image);
+
+        }
+    </script>
+    <script>
+        let modalBtn = document.getElementById("popup-btn");
+        let modal = document.querySelector(".popup");
+        let closeBtn = document.querySelector(".close-btn");
+        // Hiển thị popup khi nhấp chuột vào button
+        modalBtn.onclick = function () {
+            modal.style.display = "block"
+        }
+        // Đóng popup khi ấn vào nút đóng
+        closeBtn.onclick = function () {
+            modal.style.display = "none"
+        }
+        // Đóng khi nhấp chuột vào bất cứ khu vực nào trên màn hình
+        window.onclick = function (e) {
+            if (e.target == modal) {
+                modal.style.display = "none"
+            }
+        }
+
+    </script>
+    <script>
+        //check category and submit data if category are valid
+        function checkAndSubmit() {
+            var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            var titleBox = document.getElementById('title');
+            var content = document.getElementById('postContent');
+            var formContainer = document.getElementById('formPost');
+            var atLeastOneChecked = false;
+
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'category';
+                    hiddenInput.value = checkboxes[i].value;
+                    hiddenInput.multiple = 'true';
+                    formContainer.appendChild(hiddenInput);
+                    atLeastOneChecked = true;
+                }
+            }
+            if (atLeastOneChecked === false) {
+                alert("Please choose at least one category");
+            }
+            else if (titleBox.value.length === 0) {
+                alert("You forgot to add a title");
+            }
+            else if (content.value.length === 0) {
+                alert("You forgot to write some content");
+            }
+            else {
+                document.getElementById('formPost').submit();
+                alert("Post successfully, let's wait for the admin to accept the post ok? ^^");
+            }
+        }
+
+        //remove image inside image box, remove the box if image box is empty
+        function removeElement(id) {
+            const elementToRemove = document.getElementById(id);
+            elementToRemove.remove();
+            const motherDiv = document.getElementById('imageList');
+            const subDivs = motherDiv.querySelectorAll('div'); // Change 'div' to the appropriate selector for your sub divs
+            if (subDivs.length === 0) {
+                motherDiv.style.display = 'none'; // Hide the mother div
+                var mainElement = document.querySelector(".container-profile");
+                mainElement.style.height = "600px";
+            }
+        }
+
+        //show and hide the category list
+        const container = document.querySelector(".container-profile"),
+            privacy = container.querySelector(".post .privacy"),
+            arrowBack = container.querySelector(".audience .arrow-back");
+
+        privacy.addEventListener("click", () => {
+            container.classList.add("active");
+        });
+
+        arrowBack.addEventListener("click", () => {
+            container.classList.remove("active");
+        });
+
+        //add event to filedialog
+        const input = document.getElementById('imageInput');
+        let timeout = null;
+        let dialogopen = false;
+
+        input.addEventListener('change', () => {
+            clearTimeout(timeout);
+            checkFiles();
+        });
+        input.addEventListener('click', () => {
+            clearTimeout(timeout);
+            dialogopen = true;
+        });
+        window.addEventListener('focus', () => {
+            if (dialogopen) {
+                input.value = '';
+                input.files = null;
+                clearTimeout(timeout);
+                timeout = setTimeout(checkFiles(), 100);
+            }
+        });
+
+        //open file dialog when click on gallery button
+        function openFileDialog() {
+            document.getElementById("imageInput").click();
+        }
+
+        //add image to image box
+        function addImage(imageLink) {
+            const now = new Date();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            const uniqueId = minutes + '' + seconds;
+
+            const imageContainer = document.createElement('div');
+            imageContainer.classList.add('image-container');
+            imageContainer.id = uniqueId;
+
+            const closeButton = document.createElement('div');
+            closeButton.classList.add('close-button');
+            closeButton.textContent = '✕';
+            closeButton.onclick = function () {
+                removeElement(uniqueId);
+            };
+
+            const inputImage = document.createElement('input');
+            inputImage.type = 'image';
+            inputImage.src = imageLink;
+            inputImage.value = imageLink;
+
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'image';
+            hiddenInput.value = imageLink;
+            hiddenInput.multiple = 'true';
+
+            inputImage.onclick = function () {
+                const byteCharacters = atob(imageLink.split(',')[1]);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], { type: 'image/jpeg' });
+
+                const objectURL = URL.createObjectURL(blob);
+                const newTab = window.open(objectURL, '_blank');
+                return false;
+            };
+
+            imageContainer.appendChild(hiddenInput);
+            imageContainer.appendChild(closeButton);
+            imageContainer.appendChild(inputImage);
+            const imageList = document.getElementById('imageList');
+            imageList.appendChild(imageContainer);
+        }
+
+        //check length of title input
+        function checkInputLength(maxLength) {
+            var input = document.getElementById("title");
+            var inputValue = input.value;
+
+            if (inputValue.length > maxLength) {
+                alert("Title is too long. Please keep it within " + maxLength + " characters.");
+                input.value = inputValue.substring(0, maxLength);
+            }
+        }
+
+        //add image for each time user choose image from file dialog
+        function checkFiles() {
+            dialogopen = false;
+            if (input.files.length > 0) {
+                const motherDiv = document.getElementById('imageList');
+                const images = input.files;
+                const reader = new FileReader();
+                motherDiv.style.display = 'block'; // show the mother div
+                var mainElement = document.querySelector(".container-profile");
+                mainElement.style.height = "600px";
+                for (let i = 0; i < images.length; i++) {
+                    var image = images[i];
+                    reader.onload = function () {
+                        addImage(reader.result);
+                    };
+                    reader.readAsDataURL(image);
+                }
+            }
+        }
+    </script>
+</body>

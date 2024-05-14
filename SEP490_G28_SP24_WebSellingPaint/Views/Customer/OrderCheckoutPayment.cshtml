@@ -1,0 +1,95 @@
+﻿@{
+    Layout = "_LayoutLogin";
+}
+<link rel="stylesheet" href="/css/profile.css" />
+<meta http-equiv="refresh" content="15">
+<style>
+    label {
+        font-family: 'Roboto', sans-serif;
+        font-size: 0.8125rem;
+        font-weight: 400;
+        letter-spacing: 0.025rem;
+        font-style: normal;
+        text-transform: uppercase;
+        color: black;
+        background-color: #FFFFFF;
+        border-radius: 1.25rem;
+        -webkit-border-radius: 1.25rem;
+        -moz-border-radius: 1.25rem;
+        padding: 0.35rem 0.75rem;
+        border-style: solid;
+        border-width: 0.125rem;
+        border-color: #EF2D56;
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        -box-shadow: none;
+        width: 200%;
+    }
+</style>
+<script>
+
+    function goToLogin() {
+        window.location.href = "/Login/Login";
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get the <p> tag
+        var pTag = document.getElementById('success');
+        var goTo = document.getElementById('goto');
+        if (pTag && pTag.textContent.trim().length > 0) {
+            var count = 3;
+            var countdownInterval = setInterval(function () {
+                goTo.textContent = "Paid Order successfully, redirect to order page in " + count;
+
+                count--;
+
+                if (count < 0) {
+                    window.location.href = "Order";
+
+                    clearInterval(countdownInterval);
+                }
+            }, 1000);
+        }
+    });
+</script>
+
+
+<div class="card-body row" style="width: 60%; margin: 10% 20%;background: white">
+    <div class="col-xl-4">
+        <!-- Profile picture card-->
+        <div class="mb-4 mb-xl-0" style="text-align: center;">
+            <div class="featured-image mb-3">
+                <p id="goto" style="color: green"></p>
+                <p id="success" hidden>@ViewBag.success</p>
+                <img src="@ViewBag.QrGenerate" />
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-8 profile-address">
+        <div class="col-md-6 right-box">
+            <img style="height: 10rem;" src="https://inkythuatso.com/uploads/images/2021/09/logo-vietcombank-inkythuatso-10-10-41-18.jpg" />
+            <label>
+                VCB - Vietcombank - Ngân hàng thương mại cổ phần Ngoại thương Việt Nam
+            </label>
+            <label>
+                Số Tài Khoản: 9926056888
+            </label>
+            <label>
+                Tên Tài Khoản:NGHIEM HUY SON
+            </label>
+            <label>
+                Số Tiền thanh toán: @ViewBag.OrderPrice VND
+            </label>
+            <label>
+                Nội dung Giao Dịch: @ViewBag.OrderCode
+            </label>
+
+            @if (@ViewBag.OrderMess != null)
+            {
+                <a>@ViewBag.OrderMess</a>
+            }
+        </div>
+
+    </div>
+</div>
+

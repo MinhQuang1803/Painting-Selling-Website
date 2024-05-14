@@ -1,0 +1,434 @@
+﻿@inject IHttpContextAccessor context
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "_LayoutCustomerWithNoSlider";
+}
+<script>
+
+    window.addEventListener('load', function () {
+        scrollToComment();
+    });
+
+
+    function scrollToComment() {
+        var commentID = '@context.HttpContext.Session.GetString("commentPostID")';
+        if (commentID != "") {
+            var comment = document.getElementById(commentID);
+    @{
+        context.HttpContext.Session.Remove("commentPostID");
+    }
+                            if (comment) {
+                comment.scrollIntoView({ block: 'center' });
+            }
+        }
+    }
+
+    //method to show the reply box
+    function showReplyBox(replyBoxID) {
+        var replyBox = document.getElementById(replyBoxID);
+        if (replyBox.style.display == "none") {
+            replyBox.style.display = "block";
+        }
+        else replyBox.style.display = "none";
+    }
+
+    //function to submit comment form
+    function submitCommentForm() {
+        var textContent = document.getElementById('textContent');
+        if (textContent.value.trim() === '') {
+            Swal.fire("You havent comment anything", "", "error");
+            return false;
+        }
+        else {
+            var form = document.getElementById('commentForm');
+            //alert("nop form");
+            form.submit();
+        }
+    }
+
+    //method to hide reply comment
+    function hideShowComment(commentRootID, repButtonID) {
+        var repComments = document.getElementById(commentRootID);
+        var showRepButton = document.getElementById(repButtonID);
+        if (repComments.style.display == "block") {
+            repComments.style.display = "none";
+            showRepButton.value = "Show all reply";
+        }
+        else {
+            repComments.style.display = "block";
+            showRepButton.value = "Hide all reply";
+        }
+    }
+
+    //function to submit delete comment form
+    function submitDeleteComment(formID) {
+        Swal.fire({
+            icon: "question",
+            title: "Are you sure you want to delete this comment?",
+            showCancelButton: true,
+        }).then(result => {
+            if (result.isConfirmed) {
+                var deleteForm = document.getElementById(formID);
+                deleteForm.submit();
+            } else {
+                Swal.fire("Changes are not saved", "", "info");
+                return false;
+            }
+        });
+    }
+
+    //method to submit rep comment
+    function submitRepComment(contentBoxID, formID) {
+        var contentBox = document.getElementById(contentBoxID);
+        if (contentBox.value.trim() === '') {
+            Swal.fire("You havent comment anything", "", "error");
+            return false;
+        }
+        else {
+            var form = document.getElementById(formID);
+            form.submit();
+        }
+    }
+</script>
+<link rel="stylesheet" href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+
+<body style="background-color: white;">
+    <div class="container-xl mt-4 container">
+        <nav class="nav nav-borders">
+            <div class="card-header" target="__blank" style="font-size: 30px;">@ViewBag.post.Title</div>
+            <div class="col-xl-5" style="text-align: right; margin-right: 5%; margin-top: 4%;">
+                <a href="" style="color: black;">@ViewBag.post.Date</a>
+            </div>
+            <div class="dropdown" style="margin-top: 3%;">
+                <button onclick="myFunction()" class="dropbtn las la-bars" style="width: 30px; height: 35px;"></button>
+                <div id="myDropdown" class="dropdown-content">
+                    <a href="#">Edit Post</a>
+                    <a href="#">Delete Post</a>
+                </div>
+            </div>
+        </nav>
+        <div class="row" style="padding-bottom: 2%;">
+            <div class="col-xl-8 card-body">
+                <div class="postDetail-content">
+                    @if (ViewBag.post.Image.Count > 0)
+                    {
+                        <div class="slideshow-container gallery">
+                            @{
+                                int i = 0;
+                            }
+                            @foreach (var item in ViewBag.post.Image)
+                            {
+                                i++;
+                                <div style="text-align: center;" class="mySlides gallery__item">
+                                    <div class="numbertext">@($"{i}/{ViewBag.post.Image.Count}")</div>
+                                    <img src="@item.Url" style="width: auto;height: 350px;">
+                                </div>
+                            }
+
+                            <a class="prev" onclick="plusSlides(-1)">❮</a>
+                            <a class="next" onclick="plusSlides(1)">❯</a>
+
+                        </div>
+
+                        <br>
+
+                        <div style="text-align:center">
+                            @for (int j = 0; j < ViewBag.post.Image.Count; j++)
+                            {
+                                <span class="dot" onclick="currentSlide(@(j+1))"></span>
+                            }
+                        </div>
+                    }
+                    
+                </div>
+                <div>
+                    <div>
+                        <span>@ViewBag.post.Content</span>
+                    </div>
+                    <div class="shop-info-wrapper">
+                        <div class="shop-info">
+                            <div class="shop-info__left">
+                                <div class="shop-info__avt circular-image">
+                                    <img src="@ViewBag.author.Avatar" alt="Your Image">
+                                </div>
+                            </div>
+                            <div class="vertical-line"></div>
+                            <div class="shop-info__right">
+                                <div class="shop-info__detail" id="">
+                                    @if (ViewBag.author.ID==context.HttpContext.Session.GetInt32("UserID"))
+                                    {
+                                        <span class="bold">Author Name: You</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="bold">Author Name: @ViewBag.author.Name</span>
+                                    }
+                                </div>
+                                <div class="shop-info__detail" id="email">
+                                    <span class="bold">Email: @ViewBag.author.Email</span>
+                                </div>
+                                <div style="margin-bottom: -2%;" class="shop-info__detail" id="">
+                                    <a class="bold">Phone: @ViewBag.author.Phone</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                @*Comment*@
+                Comment
+                <div class="comment-class">
+                    @if (context.HttpContext.Session.GetString("Email") == null)
+                    {
+                        <h3 class="mb-5">You need to login to view comment section</h3>
+                    }
+                    else
+                    {
+                        <div class="">
+                            <h3 class="mb-5" style="text-shadow: 2px 2px 5px lightgreen; font-size: 30px;"> Comment @ViewBag.commentID</h3>
+                            <form id="commentForm" asp-controller="Customer" asp-action="CommentAction" method="post">
+                                <input type="hidden" name="action" value="comment">
+                                <input type="hidden" name="objectID" value="@ViewBag.objectID">
+                                <div style="margin-bottom: 30px;" id="comment">
+                                    <textarea name="content" style="width: 100%; font-size: 20px;border: solid black 2px; margin-top: -30px; border-radius: 7px; border-color: darkblue;"
+                                              class="reply-text" id="textContent" placeholder="Enter your comment here..."></textarea>
+                                    <div class="btn-container">
+                                        <input style="font-size: 18px" type="button" onclick="submitCommentForm();" value="Submit" class="btn">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div id="scrollDiv" style="overflow: auto; height: 500px;">
+                            @* comment root *@
+                            <div id="commentSection">
+                                @for (int index = 0; index < ViewBag.commentRoot.Count; index++)
+                                {
+                                    <div id="@ViewBag.commentRoot[index].ID" style="height: 8%; width: 8%; overflow: hidden; display: inline-block; vertical-align: top;">
+                                        <img src="@ViewBag.commentRoot[index].Avatar" style="max-width: 100%; max-height: 100%;" /> <!-- Set max-width and max-height of image -->
+                                    </div>
+                                    <div class="" style="display: inline-block; margin-left: 10px; vertical-align: top; margin-top: 2%; font-size: 20px; font-family: monospace;">
+                                        @if (ViewBag.commentRoot[index].UserID == context.HttpContext.Session.GetInt32("UserID"))
+                                        {
+                                            <div class="user-name">You</div>
+                                        }
+                                        else
+                                        {
+                                            <div class="user-name">@ViewBag.commentRoot[index].UserName</div>
+                                        }
+                                        <div class="date-time">@ViewBag.commentRoot[index].Date</div>
+                                    </div>
+                                    <p style="font-size: 20px;font-family: monospace;">@ViewBag.commentRoot[index].Content</p>
+                                    <input id=@("replyButton"+ViewBag.commentRoot[index].ID) style="padding: 0.3%;"
+                                           onclick="showReplyBox('@("replyBox"+ViewBag.commentRoot[index].ID)');" value="Reply" type="button" />
+                                    @if (ViewBag.commentRep[index].Count > 0)
+                                    {
+                                        <input id=@("showRepButton"+ViewBag.commentRoot[index].ID)
+                                               onclick="hideShowComment('@("commentRep"+ViewBag.commentRoot[index].ID)', '@("showRepButton"+ViewBag.commentRoot[index].ID)');"
+                                               style="padding: 0.3%; " value="Hide all reply" type="button" />
+                                    }
+                                    @if (ViewBag.commentRoot[index].UserID == context.HttpContext.Session.GetInt32("UserID"))
+                                    {
+                                        <input onclick="submitDeleteComment('@("deleteComment"+ViewBag.commentRoot[index].ID)')" style="padding: 0.3%;" value="Delete" type="button" />
+                                    }
+                                    else
+                                    {
+                                        <input style="padding: 0.3%;" value="Report" type="button" />
+                                    }
+                                    <form style="display: none;" id="@("replyBox"+ViewBag.commentRoot[index].ID)" asp-controller="Customer" asp-action="CommentAction" method="post">
+                                        <input type="hidden" name="userID" value="@context.HttpContext.Session.GetInt32("UserID")" />
+                                        <input type="hidden" name="action" value="rep" />
+                                        <input type="hidden" name="commentRepID" value="@ViewBag.commentRoot[index].ID" />
+                                        <input type="hidden" name="objectID" value="@ViewBag.objectID">
+                                        <textarea style="border: solid black 1px;" rows="4" cols="50" name="content"
+                                                  placeholder="Enter your reply here..." id="@("contentBox"+ViewBag.commentRoot[index].ID)"></textarea>
+                                        <input onclick="submitRepComment('@("contentBox"+ViewBag.commentRoot[index].ID)', '@("replyBox"+ViewBag.commentRoot[index].ID)');"
+                                               value="Submit" type="button" id="">
+                                        <input onclick="showReplyBox('@("replyBox"+ViewBag.commentRoot[index].ID)');" value="Cancel" type="button" id="">
+                                    </form>
+                                    <form id=@("deleteComment"+ViewBag.commentRoot[index].ID) asp-controller="Customer" asp-action="CommentAction" method="post">
+                                        <input type="hidden" value="delete" name="action" />
+                                        <input type="hidden" value="@ViewBag.commentRoot[index].ID" name="commentID" />
+                                        <input type="hidden" name="objectID" value="@ViewBag.objectID">
+                                    </form>
+                                    <div id="@("commentRep"+ViewBag.commentRoot[index].ID)" class="comment-reply">
+                                        @foreach (var commentRep in ViewBag.commentRep[index])
+                                        {
+                                            @* comment reply *@
+                                            <div style="margin-left: 5%; display: block;" id="">
+                                                <div id="@commentRep.Item1" style="height: 8%; width: 8%; overflow: hidden; display: inline-block; vertical-align: top;">
+                                                    <img src="@commentRep.Item6" style="max-width: 100%; max-height: 100%;" /> <!-- Set max-width and max-height of image -->
+                                                </div>
+                                                <div class="" style="display: inline-block; margin-left: 10px; vertical-align: top; margin-top: 2%; font-size: 20px;font-family: monospace;">
+                                                    @if (commentRep.Item4 == context.HttpContext.Session.GetInt32("UserID"))
+                                                    {
+                                                        <div class="user-name">You</div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="user-name">@commentRep.Item5</div>
+                                                    }
+                                                    <div class="date-time">@commentRep.Item2</div>
+                                                </div>
+                                                <p style="font-size: 20px;font-family: monospace;">@commentRep.Item3</p>
+                                                <input id=@("replyButton"+commentRep.Item1) style="padding: 0.3%;"
+                                                       onclick="showReplyBox('@("replyBox"+commentRep.Item1)');" value="Reply" type="button" />
+                                                @if (commentRep.Item4 == context.HttpContext.Session.GetInt32("UserID"))
+                                                {
+                                                    <input onclick="submitDeleteComment('@("deleteComment"+commentRep.Item1)');" style="padding: 0.3%;" value="Delete" type="button" />
+                                                }
+                                                else
+                                                {
+                                                    <input style="padding: 0.3%;" value="Report" type="button" />
+                                                }
+                                                <form style="display: none;" id="@("replyBox"+commentRep.Item1)" asp-controller="Customer" asp-action="CommentAction" method="post">
+                                                    <input type="hidden" name="userID" value="@context.HttpContext.Session.GetInt32("UserID")" />
+                                                    <input type="hidden" name="action" value="rep" />
+                                                    <input type="hidden" name="commentRepID" value="@ViewBag.commentRoot[index].ID" />
+                                                    <input type="hidden" name="objectID" value="@ViewBag.objectID">
+                                                    <textarea style="border: solid black 1px;" rows="4" cols="50" name="content"
+                                                              placeholder="Enter your reply here..." id="@("contentBox"+commentRep.Item1)"></textarea>
+                                                    <input onclick="submitRepComment('@("contentBox"+commentRep.Item1)', '@("replyBox"+commentRep.Item1)');"
+                                                           value="Submit" type="button" id="">
+                                                    <input onclick="showReplyBox('@("replyBox"+commentRep.Item1)');" value="Cancel" type="button" id="">
+                                                </form>
+                                                <form id="@("deleteComment"+commentRep.Item1)" asp-controller="Customer" asp-action="CommentAction" method="post">
+                                                    <input type="hidden" value="delete" name="action" />
+                                                    <input type="hidden" value="@commentRep.Item1" name="commentID" />
+                                                    <input type="hidden" name="objectID" value="@ViewBag.objectID">
+                                                </form>
+                                            </div>
+                                        }
+                                    </div>
+                                    <hr style="color: darkred" />
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+            </div>
+            <div class="col-xl-4">
+                <!-- Profile picture card-->
+                <div style="padding: 3% 6% 3% 6%;">
+                    <div class="card-body" style="margin-left: 10%">
+                        <h2>Category</h2>
+                        @foreach (var item in ViewBag.categories)
+                        {
+                            @if (ViewBag.post.Categories.Contains(item.ID))
+                            {
+                                <a style="color: green" href="">@item.Name</a>
+                                <br />
+                            }
+                            else
+                            {
+                                <a href="">@item.Name</a>
+                                <br />
+                            }
+                        }
+
+                    </div>
+                </div>
+                <div class="pprofile-card mb-4 mb-xl-0" style="margin-top: 3%">
+                    <div class="card-header">Recent Post</div>
+                    @foreach (var item in ViewBag.recentPost)
+                    {
+                        <div style="margin-top: 5%;" class="card-body">
+                            <div>
+                                <div class="comment-body d-flex">
+                                    <img class="img-account-profile rounded-circle mb-2" style="height: 80px;"
+                                         src="@item.Avatar">
+                                    <div style="">
+                                        <h3 class="heading"><a href="../PostDetail?id=@item.ID" style="color: black;">@item.Title</a></h3>
+                                        <p>@item.Content</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    let slideIndex = 1;
+    showSlides(slideIndex);
+
+    function plusSlides(n) {
+        showSlides(slideIndex += n);
+    }
+
+    function currentSlide(n) {
+        showSlides(slideIndex = n);
+    }
+
+    function showSlides(n) {
+        let i;
+        let slides = document.getElementsByClassName("mySlides");
+        let dots = document.getElementsByClassName("dot");
+        if (n > slides.length) { slideIndex = 1 }
+        if (n < 1) { slideIndex = slides.length }
+        for (i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";
+        }
+        for (i = 0; i < dots.length; i++) {
+            dots[i].className = dots[i].className.replace(" active", "");
+        }
+        slides[slideIndex - 1].style.display = "block";
+        dots[slideIndex - 1].className += " active";
+    }
+</script>
+<script>
+    const images = document.querySelectorAll(".gallery__item img");
+    let imageSrc;
+    // get images src onclick
+    images.forEach((img) => {
+        img.addEventListener("click", (e) => {
+            imageSrc = e.target.src;
+            //run modal function
+            imageModal(imageSrc);
+        });
+    });
+    //creating the modal
+    let imageModal = (src) => {
+        const modal = document.createElement("div");
+        modal.setAttribute("class", "modal");
+        //add the modal to the main section or the parent element
+        document.querySelector(".container").append(modal);
+        //adding image to modal
+        const newImage = document.createElement("img");
+        newImage.setAttribute("src", src);
+        //creating the close button
+        const closeBtn = document.createElement("i");
+        closeBtn.setAttribute("class", "bi bi-x-lg closeBtn");
+        //close function
+        closeBtn.onclick = () => {
+            modal.remove();
+        };
+        modal.append(newImage, closeBtn);
+    };
+
+</script>
+<script>
+    function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+
+    // Close the dropdown menu if the user clicks outside of it
+    window.onclick = function (event) {
+        if (!event.target.matches('.dropbtn')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            var i;
+            for (i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
+</script>

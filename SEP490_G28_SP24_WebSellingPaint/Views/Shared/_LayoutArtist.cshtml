@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <title>Artist Dashboard</title>
+    <link rel="stylesheet" href="/css/adminstyle.css">
+    <link rel="stylesheet"
+          href="https://maxst.icons8.com/vue-static/landings/line-awesome/line-awesome/1.3.0/css/line-awesome.min.css">
+    <link rel="stylesheet"
+          href="/lib/bootstrap/bootstrap-5.2.3-dist/css/bootstrap.min.css">
+    <script>
+        function signout() {
+            window.location.href = '/Signout';
+        }
+    </script>
+</head>
+<body>
+    <input type="checkbox" id="menu-toggle">
+    <div class="sidebar">
+        <div class="side-header">
+            <h3>A<span>rtist Dashboard</span></h3>
+        </div>
+
+        <div class="side-content">
+            <div class="side-menu">
+                <ul>
+                    <li>
+                        <a class="@(ViewBag.ActiveTitle == "statistic" ? "active" : "" )"
+                           asp-controller="Artist" asp-action="StatisticArtist">
+                            <span class="las la-chart-bar"></span>
+                            <small>Statistic</small>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="@(ViewBag.ActiveTitle == "profile" ? "active" : "" )"
+                           asp-controller="Artist" asp-action="ProfileArtist">
+                            <span class="las la-user-alt"></span>
+                            <small>Profile</small>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="@(ViewBag.ActiveTitle == "painting" ? "active" : "" )"
+                           asp-controller="Artist" asp-action="Painting">
+                            <span class="las la-image"></span>
+                            <small>Painting Management</small>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="@(ViewBag.ActiveTitle == "order" ? "active" : "" )"
+                           asp-controller="Artist" asp-action="OrderArtist">
+                            <span class="las la-shopping-cart"></span>
+                            <small>Order Management</small>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="@(ViewBag.ActiveTitle == "promotion" ? "active" : "" )"
+                           asp-controller="Artist" asp-action="Promotion">
+                            <span class="las la-percent"></span>
+                            <small>Promotion Management</small>
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+
+        <header>
+            <div class="header-content">
+                <label for="menu-toggle">
+                    <span class="las la-bars"></span>
+                </label>
+
+                <div class="header-menu">
+                    
+                    <div class="user">
+                        <div class="bg-img" style="background-image: url(/image/login.jpg)"></div>
+
+                        <span class="las la-power-off"></span>
+                        <span onclick="signout();" style="cursor: pointer">Logout</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+
+        @RenderBody();
+
+    </div>
+</body>
+
+
+</html>
